@@ -1,34 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
 <mapper namespace="hello.bookshop.member.mapper.MemberMapper">
 
 
     <insert id="save"
     parameterType="hello.bookshop.member.domain.Member"
     useGeneratedKeys="true"
-    keyProperty="member_id">
+    keyProperty="memberId">
 
         INSERT INTO member(
-            login_id
-            password
-            name
-            email
-            phone
-        zipcode
-        address
-        address_detail
-        member_type
-        created_at
-        updated_at
+            login_id,
+            password,
+            name,
+            email,
+            phone,
+            zipcode,
+            address,
+            address_detail,
+            member_type,
+            created_at,
+            updated_at
         ) VALUES (
-            #{loginId}
-            #{password}
-            #{name}
-            #{email}
-            #{phone}
-            #{zipcode}
-            #{address}
-            #{addressDetail}
-            #{memberType}
-            #{createdAt}
+            #{loginId},
+            #{password},
+            #{name},
+            #{email},
+            #{phone},
+            #{zipcode},
+            #{address},
+            #{addressDetail},
+            #{memberType},
+            #{createdAt},
             #{updatedAt}
         )
 

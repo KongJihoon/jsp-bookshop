@@ -26,10 +26,11 @@ public class MemberService {
 
         boolean existsByLoginId = memberMapper.existsByLoginId(request.getLoginId());
 
-        String encodedPassword = passwordEncoder.encode(request.getPassword());
 
 
         validateDuplicate(existsByLoginId, existsByEmail);
+
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
 
 
         Member member = Member.signUp(
@@ -47,13 +48,27 @@ public class MemberService {
 
     }
 
+    @Transactional(readOnly = true)
+    public boolean existsByLoginId(String loginId) {
+
+
+        return memberMapper.existsByLoginId(loginId);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean existsByEmail(String email) {
+
+
+        return memberMapper.existsByEmail(email);
+    }
+
     private static void validateDuplicate(boolean existsByLoginId, boolean existsByEmail) {
         if (existsByLoginId) {
-            throw new DuplicateMemberException("아이디");
+            throw new DuplicateMemberException("loginId", "아이디");
         }
 
         if (existsByEmail) {
-            throw new DuplicateMemberException("이메일");
+            throw new DuplicateMemberException("email", "이메일");
         }
     }
 
