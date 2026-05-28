@@ -1,7 +1,5 @@
 package hello.bookshop.member.validator;
 
-import hello.bookshop.common.exception.CustomException;
-import hello.bookshop.common.exception.member.PasswordMismatchException;
 import hello.bookshop.member.dto.MemberSignUpRequest;
 import hello.bookshop.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -22,12 +20,14 @@ public class MemberValidator {
 
             if (!request.getPassword().equals(request.getCheckPassword())) {
 
-                throw new PasswordMismatchException();
+                bindingResult.rejectValue("checkPassword", "passwordMismatch", "비밀번호와 비밀번호 확인이 일치하지 않습니다.");
             }
 
         }
 
 
     }
+
+
 
 }

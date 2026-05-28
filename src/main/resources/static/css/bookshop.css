@@ -1,0 +1,71 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    color: #222;
+}
+
+.brand-logo {
+    font-size: 30px;
+    font-weight: 800;
+    color: #0d6efd;
+}
+
+.brand-logo:hover {
+    color: #0a58ca;
+}
+
+.category-nav .nav-link {
+    padding-top: 14px;
+    padding-bottom: 14px;
+    white-space: nowrap;
+}
+
+.category-nav .nav-link:hover {
+    color: #0d6efd !important;
+}
+
+.nav-item {
+    justify-items: center;
+}
+
+.custom-alert {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background-color: rgba(0, 0, 0, 0.35);
+    align-items: center;
+    justify-content: center;
+}
+
+.custom-alert.show {
+    display: flex;
+}
+
+.custom-alert-box {
+    width: 360px;
+    padding: 28px;
+    border-radius: 18px;
+    text-align: center;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+}
+
+.custom-alert-box p {
+    color: #222;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.check-success-message {
+    color: #198754;
+}
+
+.check-fail-message {
+    color: #dc3545;
+    font-weight: 600;
+}
