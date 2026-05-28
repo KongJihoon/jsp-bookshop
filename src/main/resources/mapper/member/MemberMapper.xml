@@ -1,0 +1,52 @@
+<mapper namespace="hello.bookshop.member.mapper.MemberMapper">
+
+
+    <insert id="save"
+    parameterType="hello.bookshop.member.domain.Member"
+    useGeneratedKeys="true"
+    keyProperty="member_id">
+
+        INSERT INTO member(
+            login_id
+            password
+            name
+            email
+            phone
+        zipcode
+        address
+        address_detail
+        member_type
+        created_at
+        updated_at
+        ) VALUES (
+            #{loginId}
+            #{password}
+            #{name}
+            #{email}
+            #{phone}
+            #{zipcode}
+            #{address}
+            #{addressDetail}
+            #{memberType}
+            #{createdAt}
+            #{updatedAt}
+        )
+
+    </insert>
+
+    <select id="existsByLoginId" resultType="boolean">
+        SELECT EXISTS(
+            SELECT 1 FROM member WHERE login_id = #{loginId}
+        )
+
+    </select>
+
+    <select id="existsByEmail" resultType="boolean">
+        SELECT EXISTS(
+            SELECT 1 FROM member WHERE email = #{email}
+        )
+
+    </select>
+
+
+</mapper>
