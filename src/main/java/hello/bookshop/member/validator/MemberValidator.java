@@ -11,7 +11,6 @@ import org.springframework.validation.BindingResult;
 public class MemberValidator {
 
 
-    private final MemberService memberService;
 
     public void validateMemberInfo(MemberSignUpRequest request, BindingResult bindingResult) {
 
@@ -27,6 +26,7 @@ public class MemberValidator {
 
 
     }
+
 
 
 

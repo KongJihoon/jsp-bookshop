@@ -1,10 +1,15 @@
 package hello.bookshop.member.controller;
 
 import hello.bookshop.common.exception.member.DuplicateMemberException;
+import hello.bookshop.common.exception.member.LoginFailedException;
+import hello.bookshop.common.session.SessionConst;
+import hello.bookshop.member.domain.Member;
+import hello.bookshop.member.dto.MemberLoginRequest;
 import hello.bookshop.member.dto.MemberSignUpRequest;
 import hello.bookshop.member.service.MemberService;
 import hello.bookshop.member.validator.MemberValidator;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -23,6 +28,9 @@ public class MemberController {
     private final MemberValidator memberValidator;
 
 
+    /**
+     * 회원가입 폼
+     */
     @GetMapping("/signup")
     public String signup(Model model) {
 
@@ -31,6 +39,9 @@ public class MemberController {
         return "member/signup";
     }
 
+    /**
+     * 회원가입
+     */
     @PostMapping("/signup")
     public String signup(
             HttpServletRequest servletRequest,
@@ -67,13 +78,53 @@ public class MemberController {
 
         return "redirect:/";
     }
+    /**
+     * 로그인 폼
+     */
+    @GetMapping("/login")
+    public String loingForm(@ModelAttribute("member")MemberLoginRequest request) {
+        return "member/loginForm";
+    }
 
+    @PostMapping("/login")
+    public String loginForm(@Validated @ModelAttribute("member") MemberLoginRequest request
+    , BindingResult bindingResult, HttpServletRequest httpRequest, Model model) {
+
+        if (bindingResult.hasErrors()) {
+            return "member/loginForm";
+        }
+
+        try {
+            Member member = memberService.loginMember(request.getLoginId(), request.getPassword());
+
+            HttpSession session = httpRequest.getSession(false);
+
+            session.setAttribute(SessionConst.LOGIN_MEMBER, member);
+            return "redirect:/";
+
+        } catch (LoginFailedException e) {
+
+            model.addAttribute("errorMessage", e.getMessage());
+            return "member/loginForm";
+        }
+
+
+    }
+
+
+    /**
+     * 아이디 존재 검증
+     */
     @GetMapping("/signup/check-login-id")
     @ResponseBody
     public boolean checkLoginId(@RequestParam String loginId) {
         return !memberService.existsByLoginId(loginId);
     }
 
+
+    /**
+     * 이메일 존재 검증
+     */
     @GetMapping("/signup/check-email")
     @ResponseBody
     public boolean checkEmail(@RequestParam String email) {

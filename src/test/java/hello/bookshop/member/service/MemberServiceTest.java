@@ -1,6 +1,7 @@
 package hello.bookshop.member.service;
 
 import hello.bookshop.common.exception.member.DuplicateMemberException;
+import hello.bookshop.common.exception.member.LoginFailedException;
 import hello.bookshop.member.domain.Member;
 import hello.bookshop.member.dto.MemberSignUpRequest;
 import hello.bookshop.member.mapper.MemberMapper;
@@ -17,6 +18,8 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -144,6 +147,101 @@ class MemberServiceTest {
                 .isNotEqualTo(password);
 
     }
+
+    @Test
+    @DisplayName("로그인 성공")
+    void login_success() {
+        // given
+
+        String loginId = "test1";
+        String password = "test123!";
+
+        Member member = Member.signUp(
+                loginId,
+                "encodedPassword",
+                "홍길동",
+                "test@test.com",
+                "01012341234",
+                "12345",
+                "주소",
+                "상세주소"
+        );
+
+
+        when(memberMapper.findByLoginIdAndWithdrawnAtIsNull(loginId))
+                .thenReturn(Optional.of(member));
+
+        when(passwordEncoder.matches(password, "encodedPassword"))
+                .thenReturn(true);
+        // when
+
+        Member loginMember = memberService.loginMember(loginId, password);
+
+
+        // then
+
+        assertThat(loginMember).isNotNull();
+        assertThat(loginMember.getLoginId()).isEqualTo(loginId);
+
+        verify(passwordEncoder)
+                .matches(password, "encodedPassword");
+
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 아이디")
+    void login_fail_notFoundMember() {
+        // given
+
+        String loginId = "test123";
+        String password = "test@123";
+
+        // when
+
+        assertThatThrownBy(
+                () -> memberService.loginMember(loginId, password)
+        ).isInstanceOf(LoginFailedException.class);
+
+        // then
+
+        verify(passwordEncoder, never()).matches(any(), any());
+
+    }
+
+    @Test
+    @DisplayName("비밀번호 불일치")
+    void login_fail_passwordMismatch() {
+        // given
+        String loginId = "test1";
+        String password = "wrongPassword";
+
+        Member member = Member.signUp(
+                loginId,
+                "encodedPassword",
+                "홍길동",
+                "test@test.com",
+                "01012341234",
+                "12345",
+                "주소",
+                "상세주소"
+        );
+
+        when(memberMapper.findByLoginIdAndWithdrawnAtIsNull(loginId))
+                .thenReturn(Optional.of(member));
+
+        when(passwordEncoder.matches(password, "encodedPassword"))
+                .thenReturn(false);
+        // when
+
+        assertThatThrownBy(
+                () -> memberService.loginMember(loginId, password)
+        ).isInstanceOf(LoginFailedException.class);
+
+
+        // then
+        verify(passwordEncoder).matches(password, "encodedPassword");
+    }
+
 
     private MemberSignUpRequest createSignupRequest() {
 
