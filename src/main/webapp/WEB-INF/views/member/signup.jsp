@@ -34,7 +34,7 @@
                 <!-- 기본 정보 -->
                 <div class="mb-4">
                     <h3 class="h6 fw-bold border-bottom pb-2 mb-3">
-                        기본 정보
+                        기본 <정보></정보>
                     </h3>
 
                     <!-- 아이디 -->

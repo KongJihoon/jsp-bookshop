@@ -82,22 +82,32 @@ public class MemberController {
      * 로그인 폼
      */
     @GetMapping("/login")
-    public String loingForm(@ModelAttribute("member")MemberLoginRequest request) {
+    public String loginForm(Model model) {
+
+        model.addAttribute("member", new MemberLoginRequest());
+
         return "member/loginForm";
     }
 
+    /**
+     * 로그인
+     */
     @PostMapping("/login")
     public String loginForm(@Validated @ModelAttribute("member") MemberLoginRequest request
     , BindingResult bindingResult, HttpServletRequest httpRequest, Model model) {
 
         if (bindingResult.hasErrors()) {
+
+            model.addAttribute("errorMessage", bindingResult.getAllErrors()
+                    .get(0).getDefaultMessage());
+
             return "member/loginForm";
         }
 
         try {
             Member member = memberService.loginMember(request.getLoginId(), request.getPassword());
 
-            HttpSession session = httpRequest.getSession(false);
+            HttpSession session = httpRequest.getSession(true);
 
             session.setAttribute(SessionConst.LOGIN_MEMBER, member);
             return "redirect:/";
@@ -109,6 +119,21 @@ public class MemberController {
         }
 
 
+    }
+
+    /**
+     * 로그아웃
+     */
+
+    @GetMapping("/logout")
+    public String logout(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+
+        if (session != null) {
+            session.invalidate();
+        }
+
+        return "redirect:/";
     }
 
 

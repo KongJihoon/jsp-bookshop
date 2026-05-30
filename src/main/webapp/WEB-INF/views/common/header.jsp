@@ -19,12 +19,28 @@
             </ul>
 
             <ul class="nav small">
-                <li class="nav-item">
-                    <a class="nav-link px-2 text-secondary" href="#">로그인</a>
-                </li>
-                <li class="nav item">
-                    <a class="nav-link px-2 text-secondary" href="${contextPath}/member/signup">회원가입</a>
-                </li>
+                <c:choose>
+                    <c:when test="${not empty sessionScope.loginMember}">
+                        <li class="nav-item d-flex align-items-center">
+                            <span class="text-secondary me-3">
+                                ${sessionScope.loginMember.name}님 환영합니다.
+                            </span>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link px-2 text-secondary" href="${contextPath}/member/logout">로그아웃</a>
+                        </li>
+                    </c:when>
+                    <c:otherwise>
+                        <li class="nav-item">
+                            <a class="nav-link px-2 text-secondary" href="${contextPath}/member/login">로그인</a>
+                        </li>
+                        <li class="nav item">
+                            <a class="nav-link px-2 text-secondary" href="${contextPath}/member/signup">회원가입</a>
+                        </li>
+                    </c:otherwise>
+                </c:choose>
+
             </ul>
         </div>
     </div>
