@@ -1,6 +1,7 @@
 package hello.bookshop.member.service;
 
 import hello.bookshop.common.exception.member.DuplicateMemberException;
+import hello.bookshop.common.exception.member.LoginFailedException;
 import hello.bookshop.member.domain.Member;
 import hello.bookshop.member.dto.MemberSignUpRequest;
 import hello.bookshop.member.mapper.MemberMapper;
@@ -45,6 +46,22 @@ public class MemberService {
         );
 
         memberMapper.save(member);
+
+    }
+
+    public Member loginMember(String loginId, String password) {
+
+        Member member = memberMapper.findByLoginIdAndWithdrawnAtIsNull(loginId)
+                .orElseThrow(LoginFailedException::new);
+
+        String encodedPassword = member.getPassword();
+
+        if (!passwordEncoder.matches(password, encodedPassword)) {
+            throw new LoginFailedException();
+        }
+
+
+        return member;
 
     }
 
