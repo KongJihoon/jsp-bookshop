@@ -3,6 +3,7 @@ package hello.bookshop.member.service;
 import hello.bookshop.common.exception.member.DuplicateMemberException;
 import hello.bookshop.common.exception.member.LoginFailedException;
 import hello.bookshop.member.domain.Member;
+import hello.bookshop.member.dto.SessionMemberDto;
 import hello.bookshop.member.dto.MemberSignUpRequest;
 import hello.bookshop.member.mapper.MemberMapper;
 import lombok.RequiredArgsConstructor;
@@ -49,7 +50,7 @@ public class MemberService {
 
     }
 
-    public Member loginMember(String loginId, String password) {
+    public SessionMemberDto loginMember(String loginId, String password) {
 
         Member member = memberMapper.findByLoginIdAndWithdrawnAtIsNull(loginId)
                 .orElseThrow(LoginFailedException::new);
@@ -61,7 +62,8 @@ public class MemberService {
         }
 
 
-        return member;
+
+        return new SessionMemberDto(member);
 
     }
 

@@ -1,6 +1,9 @@
 package hello.bookshop.common.exception;
 
+import hello.bookshop.common.exception.member.DuplicateMemberException;
+import hello.bookshop.common.exception.member.LoginFailedException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
@@ -8,6 +11,27 @@ import org.springframework.web.servlet.ModelAndView;
 @ControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+
+    /** 회원가입 중복 예외 처리 */
+    @ExceptionHandler(DuplicateMemberException.class)
+    public String handleDuplicateException(DuplicateMemberException e, Model model) {
+
+        log.warn("회원가입 중복 발생 = {}", e.getMessage());
+        model.addAttribute("errorMessage", e.getMessage());
+
+        return "member/signup"; // 회원가입 폼으로 돌아가며 에러메시지
+
+    }
+    /**  로그인 실패 예외 처리 */
+    @ExceptionHandler(LoginFailedException.class)
+    public String handleLoginFailedException(LoginFailedException e, Model model) {
+
+        log.warn("로그인 실패 발생 = {}", e.getMessage());
+
+        model.addAttribute("errorMessage", e.getMessage());
+
+        return "member/loginForm";
+    }
 
 
 

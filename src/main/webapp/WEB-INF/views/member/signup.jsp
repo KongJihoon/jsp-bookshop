@@ -214,7 +214,8 @@
                 <div class="d-flex justify-content-center gap-3 mt-5">
                     <button type="submit" class="btn btn-primary px-5 py-2 rounded-3">가입하기</button>
                     
-                    <button type="button" class="btn btn-outline-secondary px-4 py-2 rounded-3">
+                    <button type="button" class="btn btn-outline-secondary px-4 py-2 rounded-3"
+                    onclick="location.href='${contextPath}/'">
                         취소
                     </button>
                 </div>
