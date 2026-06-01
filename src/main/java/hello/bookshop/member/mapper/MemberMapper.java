@@ -16,5 +16,7 @@ public interface MemberMapper {
 
     Optional<Member> findByLoginIdAndWithdrawnAtIsNull(String loginId);
 
+    Optional<Member> findByIdAndWithdrawnAtIsNull(Long memberId);
+
 
 }

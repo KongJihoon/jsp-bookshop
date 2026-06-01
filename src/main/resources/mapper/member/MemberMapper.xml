@@ -61,5 +61,13 @@
 
     </select>
 
+    <select id="findByIdAndWithdrawnAtIsNull" resultType="Member">
+
+        SELECT loginId, name, email, phone, zipcode, address, addressDetail
+        FROM member
+        WHERE member_id = #{memberId} AND withdrawn_at IS NULL
+
+    </select>
+
 
 </mapper>

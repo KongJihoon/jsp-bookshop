@@ -1,9 +1,7 @@
 package hello.bookshop.member.controller;
 
-import hello.bookshop.common.exception.member.DuplicateMemberException;
-import hello.bookshop.common.exception.member.LoginFailedException;
 import hello.bookshop.common.session.SessionConst;
-import hello.bookshop.member.domain.Member;
+import hello.bookshop.member.dto.SessionMemberDto;
 import hello.bookshop.member.dto.MemberLoginRequest;
 import hello.bookshop.member.dto.MemberSignUpRequest;
 import hello.bookshop.member.service.MemberService;
@@ -40,7 +38,7 @@ public class MemberController {
     }
 
     /**
-     * 회원가입
+     * 회원가입 처리
      */
     @PostMapping("/signup")
     public String signup(
@@ -64,14 +62,8 @@ public class MemberController {
             return "member/signup";
         }
 
-        try {
-            memberService.signUp(request);
-        } catch (DuplicateMemberException e) {
 
-            model.addAttribute("errorMessage", e.getMessage());
-
-            return "member/signup";
-        }
+        memberService.signUp(request);
 
         log.info("회원가입 완료 = {}", request.getLoginId());
 
@@ -90,7 +82,7 @@ public class MemberController {
     }
 
     /**
-     * 로그인
+     * 로그인 처리
      */
     @PostMapping("/login")
     public String loginForm(@Validated @ModelAttribute("member") MemberLoginRequest request
@@ -104,20 +96,14 @@ public class MemberController {
             return "member/loginForm";
         }
 
-        try {
-            Member member = memberService.loginMember(request.getLoginId(), request.getPassword());
 
-            HttpSession session = httpRequest.getSession(true);
+        SessionMemberDto sessionMemberDto = memberService.loginMember(request.getLoginId(), request.getPassword());
 
-            session.setAttribute(SessionConst.LOGIN_MEMBER, member);
-            return "redirect:/";
+        HttpSession session = httpRequest.getSession(true);
 
-        } catch (LoginFailedException e) {
+        session.setAttribute(SessionConst.LOGIN_MEMBER, sessionMemberDto);
 
-            model.addAttribute("errorMessage", e.getMessage());
-            return "member/loginForm";
-        }
-
+        return "redirect:/";
 
     }
 
