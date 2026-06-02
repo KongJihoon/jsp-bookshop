@@ -5,6 +5,7 @@ import hello.bookshop.common.exception.member.LoginFailedException;
 import hello.bookshop.common.exception.member.MemberNotFoundException;
 import hello.bookshop.member.domain.Member;
 import hello.bookshop.member.dto.MemberInfoResponse;
+import hello.bookshop.member.dto.MemberUpdateRequest;
 import hello.bookshop.member.dto.SessionMemberDto;
 import hello.bookshop.member.dto.MemberSignUpRequest;
 import hello.bookshop.member.mapper.MemberMapper;
@@ -76,6 +77,9 @@ public class MemberService {
 
     }
 
+    /**
+     * 회원정보 조회
+     */
     @Transactional(readOnly = true)
     public MemberInfoResponse getMemberDetails(Long memberId) {
 
@@ -83,6 +87,28 @@ public class MemberService {
         return memberMapper.findByIdAndWithdrawnAtIsNull(memberId)
                 .orElseThrow(MemberNotFoundException::new);
     }
+
+    /**
+     * 회원정보 수정
+     */
+
+    @Transactional
+    public void updateMemberInfo(Long memberId, MemberUpdateRequest request) {
+
+        if (memberMapper.existsByEmailAndMemberIdNot(request.getEmail(), memberId)) {
+            throw new DuplicateMemberException("email", "이메일");
+        }
+
+        Member member = memberMapper.findMemberByIdAndWithdrawnAtIsNull(memberId)
+                .orElseThrow(MemberNotFoundException::new);
+
+        member.updateMemberInfo(request.getEmail(), request.getPhone(), request.getZipcode(), request.getAddress(), request.getAddressDetail());
+
+
+        memberMapper.update(member);
+
+    }
+
 
     /**
      * 중복 로그인 아이디 검사
@@ -102,6 +128,8 @@ public class MemberService {
 
         return memberMapper.existsByEmail(email);
     }
+
+
 
 
     /**

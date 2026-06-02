@@ -97,3 +97,12 @@ body {
 .header-user-link:hover::after {
     width: 100%;
 }
+
+.zipcode-input {
+    max-width: 180px;
+}
+
+.address-search-btn {
+    min-width: 100px;
+    white-space: nowrap;
+}
