@@ -61,9 +61,9 @@
             </div>
 
             <div class="col-md-3">
-                <div class="d-flex justify-content-center justify-content-md-end gap-3 small">
-                    <a href="#" class="text-dark text-decoration-none">마이페이지</a>
-                    <a href="#" class="text-dark text-decoration-none">장바구니</a>
+                <div class="header-user-menu d-flex justify-content-center justify-content-md-end gap-3 small">
+                    <a href="${contextPath}/member/mypage" class="header-user-link">마이페이지</a>
+                    <a href="#" class="header-user-link">장바구니</a>
                 </div>
             </div>
         </div>

@@ -1,6 +1,7 @@
 package hello.bookshop.member.controller;
 
 import hello.bookshop.common.session.SessionConst;
+import hello.bookshop.member.dto.MemberInfoResponse;
 import hello.bookshop.member.dto.SessionMemberDto;
 import hello.bookshop.member.dto.MemberLoginRequest;
 import hello.bookshop.member.dto.MemberSignUpRequest;
@@ -42,7 +43,6 @@ public class MemberController {
      */
     @PostMapping("/signup")
     public String signup(
-            HttpServletRequest servletRequest,
             @Validated @ModelAttribute("member") MemberSignUpRequest request,
             BindingResult bindingResult,
             Model model
@@ -99,9 +99,13 @@ public class MemberController {
 
         SessionMemberDto sessionMemberDto = memberService.loginMember(request.getLoginId(), request.getPassword());
 
+        System.out.println(sessionMemberDto.getMemberId());
+
+
         HttpSession session = httpRequest.getSession(true);
 
         session.setAttribute(SessionConst.LOGIN_MEMBER, sessionMemberDto);
+
 
         return "redirect:/";
 
@@ -120,6 +124,30 @@ public class MemberController {
         }
 
         return "redirect:/";
+    }
+
+    @GetMapping("/mypage")
+    public String myPage() {
+
+        return "member/mypage";
+
+    }
+
+
+    /**
+     * 회원 정보 조회 (마이 페이지)
+     */
+    @GetMapping("/info")
+    public String getMemberDetails(@SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) SessionMemberDto loginMember,
+                                   Model model) {
+
+
+        MemberInfoResponse memberDetails = memberService.getMemberDetails(loginMember.getMemberId());
+
+        model.addAttribute("member", memberDetails);
+
+
+        return "member/info";
     }
 
 

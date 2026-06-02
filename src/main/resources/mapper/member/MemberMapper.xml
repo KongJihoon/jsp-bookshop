@@ -55,15 +55,31 @@
 
     <select id="findByLoginIdAndWithdrawnAtIsNull" resultType="Member">
 
-        SELECT *
-        FROM member
-        WHERE login_id = #{loginId} AND withdrawn_at IS NULL
+
+            SELECT
+            member_id,
+            login_id,
+            password,
+            name,
+            email,
+            phone,
+            zipcode,
+            address,
+            address_detail,
+            member_type,
+            created_at,
+            updated_at,
+            withdrawn_at
+            FROM member
+            WHERE login_id = #{loginId}
+            AND withdrawn_at IS NULL
+
 
     </select>
 
-    <select id="findByIdAndWithdrawnAtIsNull" resultType="Member">
+    <select id="findByIdAndWithdrawnAtIsNull" resultType="MemberInfoResponse">
 
-        SELECT loginId, name, email, phone, zipcode, address, addressDetail
+        SELECT login_id, name, email, phone, zipcode, address, address_detail
         FROM member
         WHERE member_id = #{memberId} AND withdrawn_at IS NULL
 
