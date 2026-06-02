@@ -2,6 +2,7 @@ package hello.bookshop.common.exception;
 
 import hello.bookshop.common.exception.member.DuplicateMemberException;
 import hello.bookshop.common.exception.member.LoginFailedException;
+import hello.bookshop.common.exception.member.MemberNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -31,6 +32,17 @@ public class GlobalExceptionHandler {
         model.addAttribute("errorMessage", e.getMessage());
 
         return "member/loginForm";
+    }
+
+    /** 사용자 조회 실패 예외 처리 */
+    @ExceptionHandler(MemberNotFoundException.class)
+    public String handleMemberNotFoundException(MemberNotFoundException e, Model model) {
+
+        log.warn("사용자 조회 실패 발생 = {}", e.getMessage());
+
+        model.addAttribute("errorMessage", e.getMessage());
+
+        return "common/error/notFound";
     }
 
 

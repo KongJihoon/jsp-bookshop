@@ -2,7 +2,9 @@ package hello.bookshop.member.service;
 
 import hello.bookshop.common.exception.member.DuplicateMemberException;
 import hello.bookshop.common.exception.member.LoginFailedException;
+import hello.bookshop.common.exception.member.MemberNotFoundException;
 import hello.bookshop.member.domain.Member;
+import hello.bookshop.member.dto.MemberInfoResponse;
 import hello.bookshop.member.dto.SessionMemberDto;
 import hello.bookshop.member.dto.MemberSignUpRequest;
 import hello.bookshop.member.mapper.MemberMapper;
@@ -19,6 +21,9 @@ public class MemberService {
 
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * 유저 회원가입
+     */
     @Transactional
     public void signUp(MemberSignUpRequest request) {
         // 회원 가입 로직 구현
@@ -50,6 +55,10 @@ public class MemberService {
 
     }
 
+    /**
+     * 유저 로그인
+     */
+    @Transactional
     public SessionMemberDto loginMember(String loginId, String password) {
 
         Member member = memberMapper.findByLoginIdAndWithdrawnAtIsNull(loginId)
@@ -68,12 +77,25 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
+    public MemberInfoResponse getMemberDetails(Long memberId) {
+
+
+        return memberMapper.findByIdAndWithdrawnAtIsNull(memberId)
+                .orElseThrow(MemberNotFoundException::new);
+    }
+
+    /**
+     * 중복 로그인 아이디 검사
+     */
+    @Transactional(readOnly = true)
     public boolean existsByLoginId(String loginId) {
 
 
         return memberMapper.existsByLoginId(loginId);
     }
-
+    /**
+     * 중복 이메일 검사
+     */
     @Transactional(readOnly = true)
     public boolean existsByEmail(String email) {
 
@@ -81,6 +103,10 @@ public class MemberService {
         return memberMapper.existsByEmail(email);
     }
 
+
+    /**
+     * 회원가입 검증 로직
+     */
     private static void validateDuplicate(boolean existsByLoginId, boolean existsByEmail) {
         if (existsByLoginId) {
             throw new DuplicateMemberException("loginId", "아이디");

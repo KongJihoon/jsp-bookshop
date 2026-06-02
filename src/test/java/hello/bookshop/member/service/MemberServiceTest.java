@@ -2,8 +2,11 @@ package hello.bookshop.member.service;
 
 import hello.bookshop.common.exception.member.DuplicateMemberException;
 import hello.bookshop.common.exception.member.LoginFailedException;
+import hello.bookshop.common.exception.member.MemberNotFoundException;
 import hello.bookshop.member.domain.Member;
+import hello.bookshop.member.dto.MemberInfoResponse;
 import hello.bookshop.member.dto.MemberSignUpRequest;
+import hello.bookshop.member.dto.SessionMemberDto;
 import hello.bookshop.member.mapper.MemberMapper;
 import hello.bookshop.member.validator.MemberValidator;
 import org.assertj.core.api.Assertions;
@@ -82,7 +85,6 @@ class MemberServiceTest {
 
         when(memberMapper.existsByEmail(request.getEmail())).thenReturn(false);
         when(memberMapper.existsByLoginId(request.getLoginId())).thenReturn(true);
-        when(passwordEncoder.encode(request.getPassword())).thenReturn("encodedPassword");
 
         // when
 
@@ -105,7 +107,6 @@ class MemberServiceTest {
 
         when(memberMapper.existsByEmail(request.getEmail())).thenReturn(true);
         when(memberMapper.existsByLoginId(request.getLoginId())).thenReturn(false);
-        when(passwordEncoder.encode(request.getPassword())).thenReturn("encodedPassword");
         // when
 
         assertThatThrownBy(() -> memberService.signUp(request))
@@ -175,7 +176,7 @@ class MemberServiceTest {
                 .thenReturn(true);
         // when
 
-        Member loginMember = memberService.loginMember(loginId, password);
+        SessionMemberDto loginMember = memberService.loginMember(loginId, password);
 
 
         // then
@@ -240,6 +241,58 @@ class MemberServiceTest {
 
         // then
         verify(passwordEncoder).matches(password, "encodedPassword");
+    }
+
+    @Test
+    @DisplayName("회원정보 조회 성공")
+    void getMemberDetails_success() {
+        // given
+
+        Long memberId = 1L;
+
+        MemberInfoResponse response = new MemberInfoResponse();
+
+        response.setLoginId("test1");
+        response.setName("홍길동");
+        response.setEmail("test@test.com");
+        response.setPhone("010-1234-5678");
+        response.setZipcode("12345");
+        response.setAddress("인천시 계양구");
+        response.setAddressDetail("상세주소");
+
+        when(memberMapper.findByIdAndWithdrawnAtIsNull(memberId))
+                .thenReturn(Optional.of(response));
+
+        // when
+
+        MemberInfoResponse result = memberService.getMemberDetails(memberId);
+
+        // then
+        assertThat(result).isNotNull();
+
+        assertThat(result.getLoginId()).isEqualTo("test1");
+        assertThat(result.getEmail()).isEqualTo("test@test.com");
+
+    }
+
+    @Test
+    @DisplayName("회원정보 조회 실패 - 존재하지 않는 회원")
+    void getMemberDetails_fail_memberNotFound() {
+        // given
+
+        Long memberId = 1L;
+
+        when(memberMapper.findByIdAndWithdrawnAtIsNull(memberId))
+                .thenReturn(Optional.empty());
+
+        // when
+
+        assertThatThrownBy(() -> memberService.getMemberDetails(memberId))
+                .isInstanceOf(MemberNotFoundException.class);
+
+        // then
+        verify(memberMapper).findByIdAndWithdrawnAtIsNull(memberId);
+
     }
 
 

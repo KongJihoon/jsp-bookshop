@@ -1,6 +1,7 @@
 package hello.bookshop.member.mapper;
 
 import hello.bookshop.member.domain.Member;
+import hello.bookshop.member.dto.MemberInfoResponse;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.Optional;
@@ -16,7 +17,7 @@ public interface MemberMapper {
 
     Optional<Member> findByLoginIdAndWithdrawnAtIsNull(String loginId);
 
-    Optional<Member> findByIdAndWithdrawnAtIsNull(Long memberId);
+    Optional<MemberInfoResponse> findByIdAndWithdrawnAtIsNull(Long memberId);
 
 
 }

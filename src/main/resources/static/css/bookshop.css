@@ -69,3 +69,31 @@ body {
     color: #dc3545;
     font-weight: 600;
 }
+
+.header-user-link {
+    position: relative;
+    color: #212529; !important;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.header-user-link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -4px;
+
+    width: 0;
+    height: 2px;
+
+    background-color: #0d6efd;
+    transition: width 0.2s ease;
+}
+
+.header-user-link:hover {
+    color: #0d6efd !important;
+}
+
+.header-user-link:hover::after {
+    width: 100%;
+}
