@@ -1,7 +1,8 @@
 package hello.bookshop.common.exception;
 
+import hello.bookshop.common.exception.admin.AdminLoginFailedException;
 import hello.bookshop.common.exception.member.DuplicateMemberException;
-import hello.bookshop.common.exception.member.LoginFailedException;
+import hello.bookshop.common.exception.member.MemberLoginFailedException;
 import hello.bookshop.common.exception.member.MemberNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ui.Model;
@@ -24,14 +25,29 @@ public class GlobalExceptionHandler {
 
     }
     /**  로그인 실패 예외 처리 */
-    @ExceptionHandler(LoginFailedException.class)
-    public String handleLoginFailedException(LoginFailedException e, Model model) {
+    @ExceptionHandler(MemberLoginFailedException.class)
+    public String handleLoginFailedException(MemberLoginFailedException e, Model model) {
 
         log.warn("로그인 실패 발생 = {}", e.getMessage());
 
         model.addAttribute("errorMessage", e.getMessage());
 
         return "member/loginForm";
+    }
+
+    /**
+     * 관리자 로그인 실패 예외 처리
+     */
+
+    @ExceptionHandler(AdminLoginFailedException.class)
+    public String handleAdminLoginFailedException(AdminLoginFailedException e, Model model) {
+
+        log.warn("관리자 로그인 실패 발생 = {}", e.getMessage());
+
+        model.addAttribute("errorMessage", e.getMessage());
+
+        return "admin/login";
+
     }
 
     /** 사용자 조회 실패 예외 처리 */

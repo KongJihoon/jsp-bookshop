@@ -1,7 +1,7 @@
 package hello.bookshop.member.service;
 
 import hello.bookshop.common.exception.member.DuplicateMemberException;
-import hello.bookshop.common.exception.member.LoginFailedException;
+import hello.bookshop.common.exception.member.MemberLoginFailedException;
 import hello.bookshop.common.exception.member.MemberNotFoundException;
 import hello.bookshop.member.domain.Member;
 import hello.bookshop.member.dto.MemberInfoResponse;
@@ -63,12 +63,12 @@ public class MemberService {
     public SessionMemberDto loginMember(String loginId, String password) {
 
         Member member = memberMapper.findByLoginIdAndWithdrawnAtIsNull(loginId)
-                .orElseThrow(LoginFailedException::new);
+                .orElseThrow(MemberLoginFailedException::new);
 
         String encodedPassword = member.getPassword();
 
         if (!passwordEncoder.matches(password, encodedPassword)) {
-            throw new LoginFailedException();
+            throw new MemberLoginFailedException();
         }
 
 

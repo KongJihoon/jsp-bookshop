@@ -1,23 +1,20 @@
 package hello.bookshop.member.service;
 
 import hello.bookshop.common.exception.member.DuplicateMemberException;
-import hello.bookshop.common.exception.member.LoginFailedException;
+import hello.bookshop.common.exception.member.MemberLoginFailedException;
 import hello.bookshop.common.exception.member.MemberNotFoundException;
 import hello.bookshop.member.domain.Member;
 import hello.bookshop.member.dto.MemberInfoResponse;
 import hello.bookshop.member.dto.MemberSignUpRequest;
+import hello.bookshop.member.dto.MemberUpdateRequest;
 import hello.bookshop.member.dto.SessionMemberDto;
 import hello.bookshop.member.mapper.MemberMapper;
-import hello.bookshop.member.validator.MemberValidator;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -201,7 +198,7 @@ class MemberServiceTest {
 
         assertThatThrownBy(
                 () -> memberService.loginMember(loginId, password)
-        ).isInstanceOf(LoginFailedException.class);
+        ).isInstanceOf(MemberLoginFailedException.class);
 
         // then
 
@@ -236,7 +233,7 @@ class MemberServiceTest {
 
         assertThatThrownBy(
                 () -> memberService.loginMember(loginId, password)
-        ).isInstanceOf(LoginFailedException.class);
+        ).isInstanceOf(MemberLoginFailedException.class);
 
 
         // then
@@ -295,6 +292,74 @@ class MemberServiceTest {
 
     }
 
+    @Test
+    @DisplayName("회원 정보 수정 성공")
+    void updateMemberInfo_success() {
+
+        // given
+
+        Long memberId = 1L;
+
+        MemberUpdateRequest request = new MemberUpdateRequest();
+        request.setEmail("test@test.test");
+        request.setPhone("010-1111-2222");
+        request.setZipcode("12345");
+        request.setAddress("테스트용 주소");
+        request.setAddressDetail("테스트용 상세주소");
+
+        Member member = Member.signUp(
+                "testId",
+                "encodedPassword",
+                "홍길동",
+                "old@test.com",
+                "010-0000-0000",
+                "00000",
+                "기존 주소",
+                "기존 상세주소"
+        );
+
+
+        when(memberMapper.existsByEmailAndMemberIdNot(request.getEmail(), memberId))
+                .thenReturn(false);
+
+        when(memberMapper.findMemberByIdAndWithdrawnAtIsNull(memberId))
+                .thenReturn(Optional.of(member));
+
+        // when
+
+        memberService.updateMemberInfo(memberId, request);
+
+
+
+        // then
+        ArgumentCaptor<Member> captor = ArgumentCaptor.forClass(Member.class);
+
+        verify(memberMapper).update(captor.capture());
+
+        Member updateMember = captor.getValue();
+
+        assertThat(request.getEmail()).isEqualTo(updateMember.getEmail());
+        assertThat(request.getPhone()).isEqualTo(updateMember.getPhone());
+        assertEquals("12345", updateMember.getZipcode());
+        assertEquals("테스트용 주소", updateMember.getAddress());
+        assertEquals("테스트용 상세주소", updateMember.getAddressDetail());
+
+
+        verify(memberMapper).existsByEmailAndMemberIdNot(request.getEmail(), memberId);
+        verify(memberMapper).findMemberByIdAndWithdrawnAtIsNull(memberId);
+
+    }
+
+
+    @Test
+    void encodePassword() {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+        String rawPassword = "admin@123";
+        String encodedPassword = encoder.encode(rawPassword);
+
+        System.out.println(encodedPassword);
+    }
 
     private MemberSignUpRequest createSignupRequest() {
 

@@ -1,5 +1,6 @@
 package hello.bookshop.common.config;
 
+import hello.bookshop.common.interceptor.AdminCheckInterceptor;
 import hello.bookshop.common.interceptor.GuestOnlyInterceptor;
 import hello.bookshop.common.interceptor.LoginCheckInterceptor;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +17,7 @@ public class WebConfig  implements WebMvcConfigurer {
                 .order(1)
                 .addPathPatterns(
                         "/member/login",
-                        "/member/signup"
+                        "/member/signup/**"
                 );
 
 
@@ -24,8 +25,20 @@ public class WebConfig  implements WebMvcConfigurer {
                 .order(2)
                 .addPathPatterns(
                         "/member/mypage",
-                        "/member/details",
+                        "/member/info",
                         "/member/edit"
+                );
+
+
+        registry.addInterceptor(new AdminCheckInterceptor())
+                .order(3)
+                .addPathPatterns("/admin/**")
+                .excludePathPatterns(
+                        "/admin/login",
+                        "admin/logout",
+                        "/css/**",
+                        "/js/**",
+                        "/images/**"
                 );
 
     }
