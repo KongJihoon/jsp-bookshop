@@ -26,6 +26,7 @@ public class AdminCheckInterceptor implements HandlerInterceptor {
 
         if (loginMember == null) {
             response.sendRedirect("/admin/login");
+            return false;
         }
 
         if (loginMember.getMemberType() != MemberType.ADMIN) {

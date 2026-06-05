@@ -1,6 +1,7 @@
 package hello.bookshop.common.exception;
 
 import hello.bookshop.common.exception.admin.AdminLoginFailedException;
+import hello.bookshop.common.exception.category.NotFoundCategoryException;
 import hello.bookshop.common.exception.member.DuplicateMemberException;
 import hello.bookshop.common.exception.member.MemberLoginFailedException;
 import hello.bookshop.common.exception.member.MemberNotFoundException;
@@ -60,6 +61,8 @@ public class GlobalExceptionHandler {
 
         return "common/error/notFound";
     }
+
+
 
 
 
