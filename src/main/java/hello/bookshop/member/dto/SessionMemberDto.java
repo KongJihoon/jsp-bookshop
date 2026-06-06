@@ -2,6 +2,7 @@ package hello.bookshop.member.dto;
 
 
 import hello.bookshop.member.domain.Member;
+import hello.bookshop.member.type.MemberType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -20,10 +21,13 @@ public class SessionMemberDto implements Serializable {
 
     private String name;
 
+    private MemberType memberType;
+
     public SessionMemberDto(Member member) {
         this.memberId = member.getMemberId();
         this.loginId = member.getLoginId();
         this.name = member.getName();
+        this.memberType = member.getMemberType();
     }
 
 

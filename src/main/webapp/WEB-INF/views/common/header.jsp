@@ -14,9 +14,21 @@
                 <li class="nav item">
                     <a class="nav-link px-2 text-secondary" href="#">배송 안내</a>
                 </li>
-                <li class="nav item">
-                    <a class="nav-link px-2 text-secondary" href="#">관리자 페이지</a>
-                </li>
+                <c:choose>
+
+                    <c:when test="${empty sessionScope.loginMember}">
+                        <li class="nav item">
+                            <a class="nav-link px-2 text-secondary" href="${contextPath}/admin/login">관리자 페이지</a>
+                        </li>
+                    </c:when>
+
+                    <c:when test="${sessionScope.loginMember.memberType == 'ADMIN'}">
+                        <li class="nav item">
+                            <a class="nav-link px-2 text-secondary" href="${contextPath}/admin/login">관리자 페이지</a>
+                        </li>
+                    </c:when>
+
+                </c:choose>
 
             </ul>
 

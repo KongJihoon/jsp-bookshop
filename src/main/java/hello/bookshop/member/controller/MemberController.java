@@ -125,12 +125,17 @@ public class MemberController {
      */
 
     @GetMapping("/logout")
-    public String logout(HttpServletRequest request) {
+    public String logout(HttpServletRequest request, RedirectAttributes redirectAttributes) {
         HttpSession session = request.getSession(false);
 
         if (session != null) {
             session.invalidate();
         }
+
+        redirectAttributes.addFlashAttribute(
+                "successMessage",
+                "로그아웃에 성공하였습니다."
+        );
 
         return "redirect:/";
     }
