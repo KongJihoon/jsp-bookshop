@@ -9,7 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @ControllerAdvice
 @Slf4j
@@ -60,6 +62,21 @@ public class GlobalExceptionHandler {
         model.addAttribute("errorMessage", e.getMessage());
 
         return "common/error/notFound";
+    }
+
+    /** 이미지 용량 초과 예외 처리 */
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public String handleMaxUploadSizeExceededException(
+            MaxUploadSizeExceededException e,
+            RedirectAttributes redirectAttributes
+    ) {
+
+        redirectAttributes.addFlashAttribute(
+                "errorMessage",
+                "파일 크기가 너무 큽니다."
+        );
+
+        return "redirect:/admin/product/add";
     }
 
 

@@ -15,6 +15,22 @@
 
     </select>
 
+    <select id="findAllByCategories" resultType="hello.bookshop.category.domain.Category">
+
+        SELECT
+            category_id,
+            parent_id,
+            category_name,
+            category_status,
+            created_at,
+            updated_at
+        FROM category
+        WHERE category_status = 'ACTIVE'
+        ORDER BY category_id ASC
+
+
+    </select>
+
 
 
 </mapper>
