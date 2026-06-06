@@ -90,7 +90,7 @@ public class FileStore {
             throw new FileUploadException("파일명이 존재하지 않습니다.");
         }
 
-        int pos = originalFileName.indexOf(".");
+        int pos = originalFileName.lastIndexOf(".");
 
         if (pos == -1) {
             throw new FileUploadException("확장자가 없는 파일은 업로드할 수 없습니다.");
