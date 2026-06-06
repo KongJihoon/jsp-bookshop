@@ -17,7 +17,6 @@
 <body>
 <jsp:include page="../common/header.jsp"/>
 
-
 <main class="py-5 bg-light">
 
     <div class="container">

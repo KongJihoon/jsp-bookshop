@@ -1,10 +1,8 @@
 package hello.bookshop.member.controller;
 
+import hello.bookshop.common.exception.member.DuplicateMemberException;
 import hello.bookshop.common.session.SessionConst;
-import hello.bookshop.member.dto.MemberInfoResponse;
-import hello.bookshop.member.dto.SessionMemberDto;
-import hello.bookshop.member.dto.MemberLoginRequest;
-import hello.bookshop.member.dto.MemberSignUpRequest;
+import hello.bookshop.member.dto.*;
 import hello.bookshop.member.service.MemberService;
 import hello.bookshop.member.validator.MemberValidator;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,6 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Slf4j
 @Controller
@@ -45,7 +44,8 @@ public class MemberController {
     public String signup(
             @Validated @ModelAttribute("member") MemberSignUpRequest request,
             BindingResult bindingResult,
-            Model model
+            Model model,
+            RedirectAttributes redirectAttributes
     ) {
 
 
@@ -64,6 +64,11 @@ public class MemberController {
 
 
         memberService.signUp(request);
+
+        redirectAttributes.addFlashAttribute(
+                "successMessage",
+                "회원가입이 완료되었습니다. 로그인해주세요."
+        );
 
         log.info("회원가입 완료 = {}", request.getLoginId());
 
@@ -86,7 +91,7 @@ public class MemberController {
      */
     @PostMapping("/login")
     public String loginForm(@Validated @ModelAttribute("member") MemberLoginRequest request
-    , BindingResult bindingResult, HttpServletRequest httpRequest, Model model) {
+    , BindingResult bindingResult, HttpServletRequest httpRequest, Model model, RedirectAttributes redirectAttributes) {
 
         if (bindingResult.hasErrors()) {
 
@@ -106,6 +111,10 @@ public class MemberController {
 
         session.setAttribute(SessionConst.LOGIN_MEMBER, sessionMemberDto);
 
+        redirectAttributes.addFlashAttribute(
+                "successMessage",
+                sessionMemberDto.getName() + "님 환영합니다."
+        );
 
         return "redirect:/";
 
@@ -138,7 +147,7 @@ public class MemberController {
      * 회원 정보 조회 (마이 페이지)
      */
     @GetMapping("/info")
-    public String getMemberDetails(@SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) SessionMemberDto loginMember,
+    public String getMemberDetails(@SessionAttribute(name = SessionConst.LOGIN_MEMBER) SessionMemberDto loginMember,
                                    Model model) {
 
 
@@ -149,6 +158,70 @@ public class MemberController {
 
         return "member/info";
     }
+
+    /**
+     * 회원 정보 수정 폼 (마이 페이지)
+     */
+    @GetMapping("/edit")
+    public String editForm(@SessionAttribute(name = SessionConst.LOGIN_MEMBER) SessionMemberDto loginMember,
+                           Model model) {
+
+        MemberInfoResponse member = memberService.getMemberDetails(loginMember.getMemberId());
+
+        model.addAttribute("member", member);
+
+        return "member/edit";
+
+    }
+
+    /**
+     * 회원 정보 수정 기능 (마이 페이지)
+     */
+    @PostMapping("/edit")
+    public String edit(
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER) SessionMemberDto loginMember,
+            @Validated @ModelAttribute("member") MemberUpdateRequest request,
+            BindingResult bindingResult,
+            Model model,
+            RedirectAttributes redirectAttributes
+    ) {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("errorMessage", bindingResult.getAllErrors().get(0).getDefaultMessage());
+            MemberInfoResponse memberDetails =
+                    memberService.getMemberDetails(loginMember.getMemberId());
+
+            model.addAttribute("member", memberDetails);
+            return "member/edit";
+        }
+
+        try {
+
+            memberService.updateMemberInfo(loginMember.getMemberId(), request);
+
+            redirectAttributes.addFlashAttribute(
+                    "successMessage",
+                    "회원정보가 수정되었습니다."
+            );
+
+            return "redirect:/member/info";
+
+        } catch (DuplicateMemberException e) {
+
+            log.warn("회원정보 수정 이메일 중복 발생 = {}", e.getMessage());
+            model.addAttribute("errorMessage", e.getMessage());
+
+            MemberInfoResponse memberDetails = memberService.getMemberDetails(loginMember.getMemberId());
+
+            model.addAttribute("member", memberDetails);
+
+            return "member/edit";
+
+        }
+
+    }
+
+
 
 
     /**

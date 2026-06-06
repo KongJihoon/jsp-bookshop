@@ -67,6 +67,19 @@ public class Member {
                 .build();
     }
 
+    public void updateMemberInfo(String email, String phone, String zipcode, String address, String addressDetail) {
+
+
+
+        this.email = email;
+        this.phone = phone;
+        this.zipcode = zipcode;
+        this.address = address;
+        this.addressDetail = addressDetail;
+        this.updatedAt = LocalDateTime.now();
+
+    }
+
 
 
 

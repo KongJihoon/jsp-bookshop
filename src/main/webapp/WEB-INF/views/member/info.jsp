@@ -19,62 +19,18 @@
 
 <main class="mypage">
 
-    <section class="mypage-title">
-        <h2>마이페이지</h2>
-        <p>회원님의 쇼핑 정보와 회원정보를 확인할 수 있습니다.</p>
-    </section>
 
-    <section class="member-summary">
-
-        <div>
-            <h3>${sessionScope.loginMember.name}님 안녕하세요.</h3>
-            <p>BookShop을 이용해 주셔서 감사합니다.</p>
-        </div>
-
-        <div class="summary-list">
-            <div class="summary-item">
-                <strong>0건</strong>
-                <span>최근 주문</span>
-            </div>
-            <div class="summary-item">
-                <strong>0개</strong>
-                <span>장바구니</span>
-            </div>
-        </div>
-
-    </section>
-
+    <jsp:include page="../common/mypage-menu.jsp"/>
 
     <div class="mypage-layout">
 
-        <aside class="mypage-sidebar">
-            <h3>MY PAGE</h3>
-
-            <div class="menu-group">
-                <h4>쇼핑정보</h4>
-                <ul>
-                    <li><a href="#">주문배송 조회</a></li>
-                    <li><a href="#">주문내역</a></li>
-                </ul>
-            </div>
-
-            <div class="menu-group">
-                <h4>회원정보</h4>
-                <ul>
-                    <li><a href="${contextPath}/member/info">회원정보 조회</a></li>
-                    <li><a href="#">회원정보 수정</a></li>
-                    <li><a href="#">회원탈퇴</a></li>
-                </ul>
-
-            </div>
-
-        </aside>
+        <jsp:include page="../common/mypage-sidebar.jsp"/>
 
         <section class="mypage-content">
             <!-- 상단 헤더: 라인 제거 및 폰트 두께 교정 -->
             <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom border-1">
                 <h3 class="fw-bold text-dark mb-0" style="letter-spacing: -0.5px;">회원정보 확인</h3>
-                <a href="#" class="btn btn-outline-primary btn-sm px-3 py-2 rounded-pill fw-medium">
+                <a href="${contextPath}/member/edit" class="btn btn-outline-primary btn-sm px-3 py-2 rounded-pill fw-medium">
                     <i class="bi bi-pencil-square me-1"></i> 정보 수정하기
                 </a>
             </div>
