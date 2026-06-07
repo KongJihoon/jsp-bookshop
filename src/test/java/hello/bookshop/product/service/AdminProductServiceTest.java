@@ -10,29 +10,30 @@ import hello.bookshop.member.domain.Member;
 import hello.bookshop.member.mapper.MemberMapper;
 import hello.bookshop.product.domain.Product;
 import hello.bookshop.product.domain.ProductImage;
-import hello.bookshop.product.dto.ProductCreateRequest;
+import hello.bookshop.product.dto.request.ProductCreateRequest;
+import hello.bookshop.product.dto.response.AdminProductListResponse;
 import hello.bookshop.product.mapper.ProductMapper;
+import hello.bookshop.product.type.ProductStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 
 import java.lang.reflect.Field;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ProductServiceTest {
+class AdminProductServiceTest {
 
 
     @Mock
@@ -48,7 +49,7 @@ class ProductServiceTest {
     private FileStore fileStore;
 
     @InjectMocks
-    private ProductService productService;
+    private AdminProductService adminProductService;
 
     @Test
     @DisplayName("도서 등록 성공 - 상품, 대표 이미지, 상세 이미지 저장")
@@ -127,7 +128,7 @@ class ProductServiceTest {
 
         // when
 
-        productService.createProduct(request, adminId);
+        adminProductService.createProduct(request, adminId);
 
         // then
 
@@ -185,7 +186,7 @@ class ProductServiceTest {
                 .thenReturn(Optional.empty());
         // when
 
-        assertThatThrownBy(() -> productService.createProduct(request, adminId))
+        assertThatThrownBy(() -> adminProductService.createProduct(request, adminId))
                 .isInstanceOf(MemberNotFoundException.class);
 
         // then
@@ -218,7 +219,7 @@ class ProductServiceTest {
                 .thenReturn(false);
         // when
 
-        assertThatThrownBy(() -> productService.createProduct(request, adminId))
+        assertThatThrownBy(() -> adminProductService.createProduct(request, adminId))
                 .isInstanceOf(NotFoundCategoryException.class);
 
 
@@ -254,7 +255,7 @@ class ProductServiceTest {
 
         // when
 
-        assertThatThrownBy(() -> productService.createProduct(request, adminId))
+        assertThatThrownBy(() -> adminProductService.createProduct(request, adminId))
                 .isInstanceOf(FileUploadException.class)
                 .hasMessage("대표 이미지는 필수 입니다.");
 
@@ -305,7 +306,7 @@ class ProductServiceTest {
                 .thenReturn(true);
         // when
 
-        assertThatThrownBy(() -> productService.createProduct(request, adminId))
+        assertThatThrownBy(() -> adminProductService.createProduct(request, adminId))
                 .isInstanceOf(FileUploadException.class)
                 .hasMessage("상세 이미지는 최대 5장까지 등록할 수 있습니다.");
 
@@ -314,6 +315,40 @@ class ProductServiceTest {
 
         verify(productMapper, never()).saveProduct(any(Product.class));
         verify(productMapper, never()).saveProductImage(any(ProductImage.class));
+
+    }
+
+    @Test
+    @DisplayName("관리자 도서 목록 조회 성공 테스트")
+    void findAdminProductList_success() {
+        // given
+        List<AdminProductListResponse> responses = List.of(
+                new AdminProductListResponse(
+                        1L,
+                        "자바의 정석",
+                        "남궁성",
+                        "도우출판",
+                        30000,
+                        10,
+                        "/upload/thumbnail.jpg",
+                        "ACTIVE",
+                        "베스트셀러",
+                        LocalDateTime.now()
+                )
+        );
+
+        when(productMapper.findAllByAdminProductList())
+                .thenReturn(responses);
+        // when
+
+        List<AdminProductListResponse> result = adminProductService.findAdminProductList();
+
+        // then
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getName()).isEqualTo("자바의 정석");
+
+        verify(productMapper).findAllByAdminProductList();
 
     }
 

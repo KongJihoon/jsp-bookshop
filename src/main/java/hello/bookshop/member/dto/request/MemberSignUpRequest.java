@@ -1,4 +1,4 @@
-package hello.bookshop.member.dto;
+package hello.bookshop.member.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

@@ -2,7 +2,11 @@ package hello.bookshop.member.controller;
 
 import hello.bookshop.common.exception.member.DuplicateMemberException;
 import hello.bookshop.common.session.SessionConst;
-import hello.bookshop.member.dto.*;
+import hello.bookshop.member.dto.request.MemberLoginRequest;
+import hello.bookshop.member.dto.request.MemberSignUpRequest;
+import hello.bookshop.member.dto.request.MemberUpdateRequest;
+import hello.bookshop.member.dto.response.MemberInfoResponse;
+import hello.bookshop.member.dto.response.SessionMemberDto;
 import hello.bookshop.member.service.MemberService;
 import hello.bookshop.member.validator.MemberValidator;
 import jakarta.servlet.http.HttpServletRequest;

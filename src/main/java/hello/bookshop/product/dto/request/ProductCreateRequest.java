@@ -1,4 +1,4 @@
-package hello.bookshop.product.dto;
+package hello.bookshop.product.dto.request;
 
 
 import jakarta.validation.constraints.Min;

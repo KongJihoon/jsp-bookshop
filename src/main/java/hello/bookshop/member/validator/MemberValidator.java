@@ -1,7 +1,6 @@
 package hello.bookshop.member.validator;
 
-import hello.bookshop.member.dto.MemberSignUpRequest;
-import hello.bookshop.member.service.MemberService;
+import hello.bookshop.member.dto.request.MemberSignUpRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BindingResult;

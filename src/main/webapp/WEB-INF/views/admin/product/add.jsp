@@ -13,12 +13,12 @@
 
 <body class="bg-light">
 
-<jsp:include page="../common/toast.jsp"/>
+<jsp:include page="../../common/toast.jsp"/>
 
 <%--Sidebar--%>
 
 <div class="d-flex">
-    <jsp:include page="../common/dashboard-sidebar.jsp"/>
+    <jsp:include page="../../common/dashboard-sidebar.jsp"/>
 
     <main class="flex-grow-1 p-4">
 

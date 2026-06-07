@@ -1,4 +1,4 @@
-package hello.bookshop.member.dto;
+package hello.bookshop.member.dto.response;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

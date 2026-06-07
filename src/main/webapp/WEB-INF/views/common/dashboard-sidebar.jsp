@@ -13,7 +13,7 @@
             </li>
 
             <li class="nav-item">
-                <a href="${contextPath}/admin/books" class="nav-link text-white">
+                <a href="${contextPath}/admin/product/list" class="nav-link text-white">
                     도서 관리
                 </a>
             </li>

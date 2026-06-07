@@ -1,7 +1,7 @@
 package hello.bookshop.common.interceptor;
 
 import hello.bookshop.common.session.SessionConst;
-import hello.bookshop.member.dto.SessionMemberDto;
+import hello.bookshop.member.dto.response.SessionMemberDto;
 import hello.bookshop.member.type.MemberType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
