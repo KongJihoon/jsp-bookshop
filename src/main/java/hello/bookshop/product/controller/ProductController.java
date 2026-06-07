@@ -1,11 +1,14 @@
 package hello.bookshop.product.controller;
 
+import hello.bookshop.category.domain.Category;
+import hello.bookshop.category.service.CategoryService;
 import hello.bookshop.common.exception.category.NotFoundCategoryException;
 import hello.bookshop.common.exception.product.FileUploadException;
 import hello.bookshop.common.session.SessionConst;
 import hello.bookshop.member.dto.SessionMemberDto;
 import hello.bookshop.product.dto.ProductCreateRequest;
 import hello.bookshop.product.service.ProductService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -13,22 +16,25 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
+
 @Controller
 @RequestMapping("/admin/product")
+@RequiredArgsConstructor
 public class ProductController {
 
 
     private final ProductService productService;
 
-    public ProductController(ProductService productService) {
-        this.productService = productService;
-    }
+    private final CategoryService categoryService;
 
     @GetMapping("/add")
     public String createProduct(Model model) {
 
-        model.addAttribute("product", new ProductCreateRequest());
+        List<Category> categories = categoryService.findAllByCategories();
 
+        model.addAttribute("product", new ProductCreateRequest());
+        model.addAttribute("categories", categories);
         return "product/add";
     }
 
@@ -45,6 +51,8 @@ public class ProductController {
         if (bindingResult.hasErrors()) {
             model.addAttribute("errorMessage",
                     bindingResult.getAllErrors().get(0).getDefaultMessage());
+
+            model.addAttribute("categories", categoryService.findAllByCategories());
 
             return "product/add";
         }
@@ -63,6 +71,7 @@ public class ProductController {
 
         } catch (NotFoundCategoryException | FileUploadException e) {
             model.addAttribute("errorMessage", e.getMessage());
+            model.addAttribute("categories", categoryService.findAllByCategories());
 
             return "product/add";
         }
