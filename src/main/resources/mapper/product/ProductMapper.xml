@@ -68,15 +68,11 @@
             p.price,
             p.stock_quantity,
             p.status,
-            pi.image_path,
             c.category_name,
             p.created_at
         FROM product p
         LEFT JOIN category c
             ON p.category_id = c.category_id
-        LEFT JOIN product_image pi
-            ON p.product_id = pi.product_id
-            AND pi.image_type = 'THUMBNAIL'
         WHERE p.deleted_at IS NULL
         ORDER BY p.product_id DESC
 

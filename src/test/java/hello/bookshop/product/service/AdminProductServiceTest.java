@@ -330,7 +330,6 @@ class AdminProductServiceTest {
                         "도우출판",
                         30000,
                         10,
-                        "/upload/thumbnail.jpg",
                         "ACTIVE",
                         "베스트셀러",
                         LocalDateTime.now()

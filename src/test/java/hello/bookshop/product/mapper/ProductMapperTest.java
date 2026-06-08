@@ -44,7 +44,6 @@ class ProductMapperTest {
         assertThat(product.getPrice()).isNotNull();
         assertThat(product.getStockQuantity()).isNotNull();
         assertThat(product.getStatus()).isEqualTo("ACTIVE");
-        assertThat(product.getThumbnailPath()).isNotBlank();
     }
 
 

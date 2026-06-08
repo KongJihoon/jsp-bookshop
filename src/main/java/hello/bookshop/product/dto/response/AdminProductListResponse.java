@@ -25,8 +25,6 @@ public class AdminProductListResponse {
 
     private String status;
 
-    private String thumbnailPath;
-
     private String categoryName;
 
     private LocalDateTime createdAt;

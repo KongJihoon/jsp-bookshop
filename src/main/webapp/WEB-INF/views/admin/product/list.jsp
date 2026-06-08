@@ -104,7 +104,6 @@
 
                         <tr>
                             <th>번호</th>
-                            <th>이미지</th>
                             <th class="text-start">도서명</th>
                             <th>저자</th>
                             <th>출판사</th>
@@ -122,7 +121,7 @@
 
                             <c:when test="${empty products}">
                                 <tr>
-                                    <td colspan="11"
+                                    <td colspan="9"
                                         class="text-center text-muted py-5">
                                         등록된 도서가 없습니다.
                                     </td>
@@ -134,20 +133,6 @@
                                     <tr>
                                         <td>
                                             ${status.count}
-                                        </td>
-
-                                        <td>
-                                            <c:choose>
-                                                <c:when test="${not empty product.thumbnailPath}">
-                                                    <img src="${contextPath}${product.thumbnailPath}"
-                                                        class="img-thumbnail"
-                                                        alt="img-thumbnail"
-                                                        style="width: 60px;height:80px;object-fit:cover;">
-                                                </c:when>
-                                                <c:otherwise>
-                                                    <span class="text-muted small">이미지 없음</span>
-                                                </c:otherwise>
-                                            </c:choose>
                                         </td>
 
                                         <td class="text-start">${product.name}</td>
