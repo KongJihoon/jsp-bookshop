@@ -6,6 +6,7 @@ import hello.bookshop.common.dto.PageResponse;
 import hello.bookshop.common.exception.category.NotFoundCategoryException;
 import hello.bookshop.common.exception.member.MemberNotFoundException;
 import hello.bookshop.common.exception.product.FileUploadException;
+import hello.bookshop.common.exception.product.ProductNotFoundException;
 import hello.bookshop.file.FileStore;
 import hello.bookshop.file.UploadFile;
 import hello.bookshop.member.domain.Member;
@@ -13,7 +14,9 @@ import hello.bookshop.member.mapper.MemberMapper;
 import hello.bookshop.product.domain.Product;
 import hello.bookshop.product.domain.ProductImage;
 import hello.bookshop.product.dto.request.ProductCreateRequest;
+import hello.bookshop.product.dto.response.AdminProductDetailResponse;
 import hello.bookshop.product.dto.response.AdminProductListResponse;
+import hello.bookshop.product.dto.response.ProductImageResponse;
 import hello.bookshop.product.mapper.ProductMapper;
 import hello.bookshop.product.type.ProductImageType;
 import hello.bookshop.product.type.ProductStatus;
@@ -87,6 +90,22 @@ public class AdminProductService {
                 pageRequest.getSize(),
                 totalCount
         );
+
+    }
+    /**
+     * 도서 상세 조회 기능
+     */
+    @Transactional(readOnly = true)
+    public AdminProductDetailResponse getAdminProductDetail(Long productId) {
+
+        AdminProductDetailResponse product = productMapper.findAdminProductDetail(productId)
+                .orElseThrow(() -> new ProductNotFoundException("도서를 찾을 수 없습니다."));
+
+        List<ProductImageResponse> images = productMapper.findProductImagesByProductId(product.getProductId());
+
+        product.setImages(images);
+
+        return product;
 
     }
 

@@ -4,11 +4,14 @@ package hello.bookshop.product.mapper;
 import hello.bookshop.common.dto.PageRequest;
 import hello.bookshop.product.domain.Product;
 import hello.bookshop.product.domain.ProductImage;
+import hello.bookshop.product.dto.response.AdminProductDetailResponse;
 import hello.bookshop.product.dto.response.AdminProductListResponse;
+import hello.bookshop.product.dto.response.ProductImageResponse;
 import hello.bookshop.product.type.ProductStatus;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
+import java.util.Optional;
 
 @Mapper
 public interface ProductMapper {
@@ -21,5 +24,9 @@ public interface ProductMapper {
 
     int countAdminProductList(PageRequest pageRequest);
 
+
+    Optional<AdminProductDetailResponse> findAdminProductDetail(Long productId);
+
+    List<ProductImageResponse> findProductImagesByProductId(Long productId);
 
 }

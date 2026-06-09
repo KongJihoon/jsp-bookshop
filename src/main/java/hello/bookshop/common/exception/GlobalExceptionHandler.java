@@ -5,6 +5,7 @@ import hello.bookshop.common.exception.category.NotFoundCategoryException;
 import hello.bookshop.common.exception.member.DuplicateMemberException;
 import hello.bookshop.common.exception.member.MemberLoginFailedException;
 import hello.bookshop.common.exception.member.MemberNotFoundException;
+import hello.bookshop.common.exception.product.ProductNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -77,6 +78,15 @@ public class GlobalExceptionHandler {
         );
 
         return "redirect:/admin/product/add";
+    }
+
+    @ExceptionHandler(ProductNotFoundException.class)
+    public String handleProductNotFoundException(ProductNotFoundException e, RedirectAttributes redirectAttributes) {
+
+        redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+
+
+        return "redirect:/admin/product/detail";
     }
 
 

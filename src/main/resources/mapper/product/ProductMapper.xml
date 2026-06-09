@@ -123,6 +123,46 @@
         </if>
 
     </select>
+    
+    <select id="findAdminProductDetail"
+            parameterType="long"
+            resultType="hello.bookshop.product.dto.response.AdminProductDetailResponse">
+        
+        SELECT
+            p.product_id,
+            p.category_id,
+            c.category_name,
+            p.name,
+            p.author,
+            p.publisher,
+            p.price,
+            p.stock_quantity,
+            p.description,
+            p.status,
+            p.created_at,
+            p.updated_at
+        FROM product p
+        LEFT JOIN category c
+            ON p.category_id = c.category_id
+        WHERE p.product_id = #{productId}
+        AND p.deleted_at IS NULL
+        
+    </select>
+    
+    <select id="findProductImagesByProductId"
+            parameterType="long"
+            resultType="hello.bookshop.product.dto.response.ProductImageResponse">
+
+        SELECT
+            product_image_id,
+            image_path,
+            image_type,
+            sort_order
+        FROM product_image
+        WHERE product_id = #{productId}
+        ORDER BY sort_order ASC
+
+    </select>
 
 
 </mapper>
