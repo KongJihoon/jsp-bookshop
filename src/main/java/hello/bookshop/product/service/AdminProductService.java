@@ -1,6 +1,8 @@
 package hello.bookshop.product.service;
 
 import hello.bookshop.category.mapper.CategoryMapper;
+import hello.bookshop.common.dto.PageRequest;
+import hello.bookshop.common.dto.PageResponse;
 import hello.bookshop.common.exception.category.NotFoundCategoryException;
 import hello.bookshop.common.exception.member.MemberNotFoundException;
 import hello.bookshop.common.exception.product.FileUploadException;
@@ -14,6 +16,7 @@ import hello.bookshop.product.dto.request.ProductCreateRequest;
 import hello.bookshop.product.dto.response.AdminProductListResponse;
 import hello.bookshop.product.mapper.ProductMapper;
 import hello.bookshop.product.type.ProductImageType;
+import hello.bookshop.product.type.ProductStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,8 +66,28 @@ public class AdminProductService {
 
     }
 
-    public List<AdminProductListResponse> findAdminProductList() {
-        return productMapper.findAllByAdminProductList();
+    /**
+     * 도서 목록 조회 기능
+     */
+    public PageResponse<AdminProductListResponse> findAdminProductList(Integer page,
+                                                                       Long categoryId,
+                                                                       ProductStatus status,
+                                                                       String keyword) {
+
+
+        PageRequest pageRequest = new PageRequest(page, 10, categoryId, status,  keyword);
+
+        List<AdminProductListResponse> products = productMapper.findAllByAdminProductList(pageRequest);
+
+        int totalCount = productMapper.countAdminProductList(pageRequest);
+
+        return new PageResponse<>(
+                products,
+                pageRequest.getPage(),
+                pageRequest.getSize(),
+                totalCount
+        );
+
     }
 
     /**

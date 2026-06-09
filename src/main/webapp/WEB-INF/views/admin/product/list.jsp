@@ -39,48 +39,54 @@
 
             <div class="card-body">
 
-                <div class="row g-3">
+               <form action="${contextPath}/admin/product/list" method="get">
+                   <div class="row g-3">
 
-                    <div class="col-md-3">
-                        <label class="form-label fw-semibold">카테고리</label>
+                       <div class="col-md-3">
+                           <label class="form-label fw-semibold">카테고리</label>
 
-                        <select class="form-select" name="categoryId">
-                            <option value="">전체</option>
-                            <c:forEach var="category" items="${categories}">
-                                <option value="${category.categoryId}">
-                                    ${category.categoryName}
-                                </option>
-                            </c:forEach>
+                           <select class="form-select" name="categoryId" onchange="this.form.submit()">
+                               <option value="">전체</option>
+                               <c:forEach var="category" items="${categories}">
+                                   <option value="${category.categoryId}"
+                                   ${selectedCategoryId == category.categoryId ? 'selected' : ''}>
+                                           ${category.categoryName}
+                                   </option>
+                               </c:forEach>
 
-                        </select>
+                           </select>
 
-                    </div>
+                       </div>
 
-                    <div class="col-md-3">
+                       <div class="col-md-3">
 
-                        <label class="form-label fw-semibold">판매 상태</label>
+                           <label class="form-label fw-semibold">판매 상태</label>
 
-                        <select class="form-select" name="" id="">
-                            <option value="">전체</option>
-                            <option value="ACTIVE">판매중</option>
-                            <option value="SOLD_OUT">품절</option>
-                            <option value="DELETED">판매중지</option>
-                        </select>
+                           <select class="form-select" name="status" id="" onchange="this.form.submit()">
+                               <option value="">전체</option>
+                               <option value="ACTIVE"
+                                    ${selectedStatus == 'ACTIVE' ? 'selected' : ''}>판매중</option>
+                               <option value="SOLD_OUT"
+                                    ${selectedStatus == 'SOLD_OUT' ? 'selected' : ''}>품절</option>
+                               <option value="DELETED"
+                                    ${selectedStatus == 'DELETED' ? 'selected' : ''}>판매중지</option>
+                           </select>
 
-                    </div>
+                       </div>
 
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold" for="">검색어</label>
+                       <div class="col-md-4">
+                           <label class="form-label fw-semibold" for="">검색어</label>
 
-                        <input class="form-control" type="text"
-                               placeholder="도서명 또는 저자 검색">
-                    </div>
+                           <input class="form-control" type="text" name="keyword" value="${keyword}"
+                                  placeholder="도서명 또는 저자 검색">
+                       </div>
 
-                    <div class="col-md-2 d-flex align-items-end">
-                        <button class="btn btn-dark w-100">🔎 검색</button>
-                    </div>
+                       <div class="col-md-2 d-flex align-items-end">
+                           <button type="submit" class="btn btn-dark w-100">🔎 검색</button>
+                       </div>
 
-                </div>
+                   </div>
+               </form>
 
             </div>
 
@@ -94,7 +100,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="fw-bold mb-0">도서 목록</h5>
 
-                    <span class="text-muted">총 ${products.size()}권</span>
+                    <span class="text-muted">총 ${productPage.totalCount}권</span>
                 </div>
 
                 <div class="table-responsive">
@@ -132,7 +138,7 @@
                                 <c:forEach var="product" items="${products}" varStatus="status">
                                     <tr>
                                         <td>
-                                            ${status.count}
+                                            ${(productPage.page - 1) * productPage.size + status.count}
                                         </td>
 
                                         <td class="text-start">${product.name}</td>
@@ -188,21 +194,28 @@
                 <nav class="mt-4">
 
                     <ul class="pagination justify-content-center">
-                        <li class="page-item disabled">
-                            <a href="" class="page-link">이전</a>
+
+                        <li class="page-item ${productPage.hasPrevious ? '' : 'disabled'}">
+                            <a class="page-link" href="${contextPath}/admin/product/list?page=${productPage.page - 1}&categoryId=${selectedCategoryId}&status=${selectedStatus}&keyword=${keyword}">이전</a>
                         </li>
-                        <li class="page-item active">
-                            <a href="" class="page-link">1</a>
+
+                        <c:forEach begin="1" end="${productPage.totalPages}" var="pageNumber">
+
+                            <li class="page-item ${productPage.page == pageNumber ? 'active' : ''}">
+                                <a class="page-link" href="${contextPath}/admin/product/list?page=${pageNumber}&categoryId=${selectedCategoryId}&status=${selectedStatus}&keyword=${keyword}">
+                                    ${pageNumber}
+                                </a>
+                            </li>
+
+                        </c:forEach>
+
+                        <li class="page-item ${productPage.hasNext ? '' : 'disabled'}">
+                            <a class="page-link" href="${contextPath}/admin/product/list?page=${productPage.page + 1}&categoryId=${selectedCategoryId}&status=${selectedStatus}&keyword=${keyword}">
+                                다음
+                            </a>
                         </li>
-                        <li class="page-item">
-                            <a href="" class="page-link">2</a>
-                        </li>
-                        <li class="page-item">
-                            <a href="" class="page-link">3</a>
-                        </li>
-                        <li class="page-item">
-                            <a href="" class="page-link">다음</a>
-                        </li>
+
+
                     </ul>
                 </nav>
 
@@ -214,6 +227,7 @@
 
     </main>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 
