@@ -1,6 +1,7 @@
 package hello.bookshop.admin.controller;
 
-import hello.bookshop.admin.dto.AdminLoginRequest;
+import hello.bookshop.admin.dto.request.AdminLoginRequest;
+import hello.bookshop.admin.dto.response.AdminDashboardResponse;
 import hello.bookshop.admin.service.AdminService;
 import hello.bookshop.common.session.SessionConst;
 import hello.bookshop.member.dto.response.SessionMemberDto;
@@ -75,7 +76,12 @@ public class AdminController {
     }
 
     @GetMapping("/dashboard")
-    public String dashboard() {
+    public String dashboard(Model model) {
+
+        AdminDashboardResponse dashBoard = adminService.getDashBoard();
+
+        model.addAttribute("dashboard", dashBoard);
+
         return "admin/dashboard";
     }
 

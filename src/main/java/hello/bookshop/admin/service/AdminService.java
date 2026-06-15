@@ -1,14 +1,17 @@
 package hello.bookshop.admin.service;
 
-import hello.bookshop.admin.dto.AdminLoginRequest;
+import hello.bookshop.admin.dto.request.AdminLoginRequest;
+import hello.bookshop.admin.dto.response.AdminDashboardResponse;
 import hello.bookshop.common.exception.admin.AdminLoginFailedException;
 import hello.bookshop.member.domain.Member;
 import hello.bookshop.member.dto.response.SessionMemberDto;
 import hello.bookshop.member.mapper.MemberMapper;
 import hello.bookshop.member.type.MemberType;
+import hello.bookshop.product.mapper.ProductMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +20,7 @@ public class AdminService {
     private final MemberMapper memberMapper;
 
     private final PasswordEncoder passwordEncoder;
+    private final ProductMapper productMapper;
 
     public SessionMemberDto loginAdmin(AdminLoginRequest request) {
 
@@ -33,6 +37,19 @@ public class AdminService {
 
 
         return new SessionMemberDto(member);
+    }
+
+    @Transactional(readOnly = true)
+    public AdminDashboardResponse getDashBoard() {
+
+        long totalProductCount = productMapper.countAllProducts();
+
+        long totalMemberCount = memberMapper.countAllUsers();
+
+        long soldOutProductCount = productMapper.countSoldOutProducts();
+
+        return new AdminDashboardResponse(totalProductCount, totalMemberCount, soldOutProductCount);
+
     }
 
 

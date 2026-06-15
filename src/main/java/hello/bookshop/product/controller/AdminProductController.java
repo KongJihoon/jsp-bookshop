@@ -8,11 +8,11 @@ import hello.bookshop.common.exception.product.FileUploadException;
 import hello.bookshop.common.session.SessionConst;
 import hello.bookshop.member.dto.response.SessionMemberDto;
 import hello.bookshop.product.dto.request.ProductCreateRequest;
+import hello.bookshop.product.dto.request.ProductUpdateRequest;
 import hello.bookshop.product.dto.response.AdminProductDetailResponse;
 import hello.bookshop.product.dto.response.AdminProductListResponse;
 import hello.bookshop.product.service.AdminProductService;
 import hello.bookshop.product.type.ProductStatus;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -137,6 +137,94 @@ public class AdminProductController {
 
         return "admin/product/detail";
     }
+    /**
+     * 도서 수정 폼
+     */
+    @GetMapping("/{productId}/edit")
+    public String editProductForm(@PathVariable Long productId, Model model) {
+
+        AdminProductDetailResponse product = adminProductService.getAdminProductDetail(productId);
+
+        List<Category> categories = categoryService.findAllByCategories();
+
+        model.addAttribute("product", product);
+
+        model.addAttribute("categories", categories);
+
+        model.addAttribute("productUpdateRequest", new ProductUpdateRequest());
+
+
+        return "admin/product/edit";
+    }
+
+    /**
+     * 도서 수정 기능
+     */
+    @PostMapping("/{productId}/edit")
+    public String editProduct(
+            @PathVariable Long productId,
+            @Validated @ModelAttribute("productUpdateRequest") ProductUpdateRequest request,
+            BindingResult bindingResult,
+            @SessionAttribute(SessionConst.LOGIN_MEMBER) SessionMemberDto loginMember,
+            Model model,
+            RedirectAttributes redirectAttributes
+    ) {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("errorMessage", bindingResult.getAllErrors().get(0).getDefaultMessage());
+
+
+            model.addAttribute("product", adminProductService.getAdminProductDetail(productId));
+
+            model.addAttribute("categories", categoryService.findAllByCategories());
+
+            return "admin/product/edit";
+        }
+
+        try {
+            adminProductService.updateProduct(
+                    productId, loginMember.getMemberId(), request
+            );
+        } catch (NotFoundCategoryException | FileUploadException e) {
+            model.addAttribute("errorMessage", e.getMessage());
+
+            model.addAttribute("product", adminProductService.getAdminProductDetail(productId));
+
+            model.addAttribute("categories", categoryService.findAllByCategories());
+
+            return "admin/product/edit";
+        }
+
+        redirectAttributes.addFlashAttribute(
+                "successMessage",
+                "도서 정보가 수정되었습니다."
+        );
+
+        return "redirect:/admin/product/" + productId;
+
+    }
+
+    /**
+     * 도서 삭제 기능
+     */
+
+    @PostMapping("/{productId}/delete")
+    public String deleteProduct(
+            @PathVariable Long productId,
+            @SessionAttribute(SessionConst.LOGIN_MEMBER) SessionMemberDto loginMember,
+            RedirectAttributes redirectAttributes
+    ) {
+        adminProductService.deleteProduct(productId, loginMember.getMemberId());
+
+        redirectAttributes.addFlashAttribute(
+                "successMessage",
+                "도서가 삭제되었습니다."
+        );
+
+        return "redirect:/admin/product/list";
+    }
+
+
 
 
 }

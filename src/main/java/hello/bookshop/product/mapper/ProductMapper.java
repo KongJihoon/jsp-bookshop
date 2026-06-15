@@ -7,8 +7,10 @@ import hello.bookshop.product.domain.ProductImage;
 import hello.bookshop.product.dto.response.AdminProductDetailResponse;
 import hello.bookshop.product.dto.response.AdminProductListResponse;
 import hello.bookshop.product.dto.response.ProductImageResponse;
+import hello.bookshop.product.type.ProductImageType;
 import hello.bookshop.product.type.ProductStatus;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,4 +31,24 @@ public interface ProductMapper {
 
     List<ProductImageResponse> findProductImagesByProductId(Long productId);
 
+
+
+    Optional<Product> findByProductIdAndDeletedAtIsNull(Long productId);
+
+    void updateProduct(Product product);
+
+    Optional<ProductImage> findThumbnailImageByProductId(Long productId);
+
+    List<ProductImage> findProductImagesByProductIdAndType(@Param("productId") Long productId, @Param("imageType") ProductImageType imageType);
+
+    void deleteThumbnailImageByProductId(Long productId);
+
+    void deleteProductImagesByProductIdAndType(@Param("productId") Long productId, @Param("imageType") ProductImageType imageType);
+
+
+    long countAllProducts();
+
+    long countSoldOutProducts();
+
+    int deleteProduct(Product product);
 }

@@ -86,7 +86,7 @@ public class GlobalExceptionHandler {
         redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
 
 
-        return "redirect:/admin/product/detail";
+        return "redirect:/admin/product/{productId}";
     }
 
 

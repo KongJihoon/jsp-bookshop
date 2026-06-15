@@ -1,4 +1,4 @@
-package hello.bookshop.admin.dto;
+package hello.bookshop.admin.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

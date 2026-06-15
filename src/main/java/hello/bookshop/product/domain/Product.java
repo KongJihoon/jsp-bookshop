@@ -72,4 +72,26 @@ public class Product {
                 .build();
     }
 
+
+    public void updateProduct(Long categoryId, String name, String author, String publisher, Integer price, Integer stockQuantity, String description, ProductStatus status, Long updatedBy) {
+
+        this.categoryId = categoryId;
+        this.name = name;
+        this.author = author;
+        this.publisher = publisher;
+        this.price = price;
+        this.stockQuantity = stockQuantity;
+        this.description = description;
+        this.status = status;
+        this.updatedBy = updatedBy;
+
+
+
+    }
+
+    public void deleteProduct(Long updatedBy) {
+        this.status = ProductStatus.DELETED;
+        this.updatedBy = updatedBy;
+    }
+
 }
