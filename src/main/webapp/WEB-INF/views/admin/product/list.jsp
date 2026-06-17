@@ -169,7 +169,7 @@
                                         <td>${product.createdAt.toLocalDate()}</td>
 
                                         <td>
-                                            <a href="#" class="btn btn-sm btn-outline-primary">상세</a>
+                                            <a href="${contextPath}/admin/product/${product.productId}" class="btn btn-sm btn-outline-primary">상세</a>
                                             <a href="#" class="btn btn-sm btn-outline-secondary">수정</a>
 
                                         </td>

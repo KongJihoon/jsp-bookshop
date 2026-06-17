@@ -5,6 +5,7 @@ import hello.bookshop.common.interceptor.GuestOnlyInterceptor;
 import hello.bookshop.common.interceptor.LoginCheckInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
@@ -41,5 +42,11 @@ public class WebConfig  implements WebMvcConfigurer {
                         "/images/**"
                 );
 
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/upload/**")
+                .addResourceLocations("file:/Users/ji/bookshop-upload/");
     }
 }

@@ -8,9 +8,11 @@ import hello.bookshop.common.exception.product.FileUploadException;
 import hello.bookshop.common.session.SessionConst;
 import hello.bookshop.member.dto.response.SessionMemberDto;
 import hello.bookshop.product.dto.request.ProductCreateRequest;
+import hello.bookshop.product.dto.response.AdminProductDetailResponse;
 import hello.bookshop.product.dto.response.AdminProductListResponse;
 import hello.bookshop.product.service.AdminProductService;
 import hello.bookshop.product.type.ProductStatus;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -117,6 +119,23 @@ public class AdminProductController {
         model.addAttribute("selectedCategoryId", categoryId);
         model.addAttribute("keyword", keyword);
         return "admin/product/list";
+    }
+
+    /**
+     * 도서 상세 조회
+     */
+
+    @GetMapping("/{productId}")
+    public String productDetail(
+            @PathVariable Long productId,
+            Model model
+    ) {
+
+        AdminProductDetailResponse product = adminProductService.getAdminProductDetail(productId);
+
+        model.addAttribute("product", product);
+
+        return "admin/product/detail";
     }
 
 
