@@ -284,4 +284,94 @@
         AND deleted_at IS NULL
     </update>
 
+    <select id="findLatestProduct" resultType="hello.bookshop.home.dto.response.HomeProductResponse">
+
+        SELECT
+            p.product_id,
+            p.name,
+            p.author,
+            p.publisher,
+            p.price,
+            p.stock_quantity,
+            pi.image_path
+        FROM product p
+        LEFT JOIN product_image pi
+            ON p.product_id = pi.product_id
+            AND pi.image_type = 'THUMBNAIL'
+        WHERE p.deleted_at IS NULL
+        AND p.status = 'ACTIVE'
+        ORDER BY p.created_at DESC
+        LIMIT 4
+
+    </select>
+    
+    <select id="findUserProductList"
+            parameterType="hello.bookshop.common.dto.PageRequest"
+            resultType="hello.bookshop.product.dto.response.UserProductListResponse">
+
+        SELECT
+            p.product_id,
+            p.category_id,
+            c.category_name,
+            p.name,
+            p.author,
+            p.publisher,
+            p.price,
+            p.stock_quantity,
+            pi.image_path
+        FROM product p
+        LEFT JOIN category c
+            ON p.category_id = c.category_id
+        LEFT JOIN product_image pi
+            ON p.product_id = pi.product_id
+            AND pi.image_type = 'THUMBNAIL'
+        WHERE p.deleted_at IS NULL
+        AND p.status = 'ACTIVE'
+
+        <if test="categoryId != null">
+            AND p.category_id = #{categoryId}
+        </if>
+
+        ORDER BY p.created_at DESC
+        LIMIT #{size}
+        OFFSET #{offset}
+    </select>
+
+    <select id="countUserProductList"
+            parameterType="hello.bookshop.common.dto.PageRequest"
+            resultType="int">
+
+        SELECT COUNT(*)
+        FROM product p
+        WHERE p.deleted_at IS NULL
+        AND p.status = 'ACTIVE'
+        <if test="categoryId != null">
+            AND p.category_id = #{categoryId}
+        </if>
+
+    </select>
+
+    <select id="findUserProductDetail"
+            parameterType="long"
+            resultType="hello.bookshop.product.dto.response.UserProductDetailResponse">
+
+        SELECT
+            p.product_id,
+            p.category_id,
+            c.category_name,
+            p.name,
+            p.author,
+            p.publisher,
+            p.price,
+            p.stock_quantity,
+            p.description
+        FROM product p
+        LEFT JOIN category c
+        ON p.category_id = c.category_id
+        WHERE p.product_id = #{productId}
+        AND p.deleted_at IS NULL
+        AND p.status = 'ACTIVE'
+
+    </select>
+
 </mapper>

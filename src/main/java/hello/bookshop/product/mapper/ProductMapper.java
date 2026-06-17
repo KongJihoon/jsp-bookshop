@@ -2,11 +2,10 @@ package hello.bookshop.product.mapper;
 
 
 import hello.bookshop.common.dto.PageRequest;
+import hello.bookshop.home.dto.response.HomeProductResponse;
 import hello.bookshop.product.domain.Product;
 import hello.bookshop.product.domain.ProductImage;
-import hello.bookshop.product.dto.response.AdminProductDetailResponse;
-import hello.bookshop.product.dto.response.AdminProductListResponse;
-import hello.bookshop.product.dto.response.ProductImageResponse;
+import hello.bookshop.product.dto.response.*;
 import hello.bookshop.product.type.ProductImageType;
 import hello.bookshop.product.type.ProductStatus;
 import org.apache.ibatis.annotations.Mapper;
@@ -51,4 +50,12 @@ public interface ProductMapper {
     long countSoldOutProducts();
 
     int deleteProduct(Product product);
+
+    List<HomeProductResponse> findLatestProduct();
+
+    List<UserProductListResponse> findUserProductList(PageRequest pageRequest);
+
+    int countUserProductList(PageRequest pageRequest);
+
+    Optional<UserProductDetailResponse> findUserProductDetail(Long productId);
 }

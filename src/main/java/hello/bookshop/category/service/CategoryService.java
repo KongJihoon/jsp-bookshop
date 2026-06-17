@@ -23,7 +23,7 @@ public class CategoryService {
 
         log.info("카테고리 검색 시작 = {}", categories);
 
-        return categoryMapper.findAllByCategories();
+        return categories;
     }
 
 }
