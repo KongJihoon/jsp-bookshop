@@ -2,6 +2,7 @@ package hello.bookshop.product.controller;
 
 import hello.bookshop.category.domain.Category;
 import hello.bookshop.category.service.CategoryService;
+import hello.bookshop.common.dto.PageResponse;
 import hello.bookshop.common.exception.category.NotFoundCategoryException;
 import hello.bookshop.common.exception.product.FileUploadException;
 import hello.bookshop.common.session.SessionConst;
@@ -9,6 +10,7 @@ import hello.bookshop.member.dto.response.SessionMemberDto;
 import hello.bookshop.product.dto.request.ProductCreateRequest;
 import hello.bookshop.product.dto.response.AdminProductListResponse;
 import hello.bookshop.product.service.AdminProductService;
+import hello.bookshop.product.type.ProductStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -86,15 +88,34 @@ public class AdminProductController {
      * 관리자 도서 목록 조회
      */
     @GetMapping("/list")
-    public String productList(Model model) {
+    public String productList(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) ProductStatus status,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) String keyword,
+            Model model,
+            RedirectAttributes redirectAttributes) {
 
-        List<AdminProductListResponse> products = adminProductService.findAdminProductList();
+        if (keyword != null && !keyword.isBlank() && keyword.length() < 2) {
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage",
+                    "검색어는 2글자 이상 입력해주세요.");
+
+            return "redirect:/admin/product/list";
+        }
+
+        PageResponse<AdminProductListResponse> products = adminProductService.findAdminProductList(page, categoryId, status, keyword);
+
 
         List<Category> categories = categoryService.findAllByCategories();
 
-        model.addAttribute("products", products);
+        model.addAttribute("productPage", products);
+        model.addAttribute("products", products.getContent());
         model.addAttribute("categories", categories);
 
+        model.addAttribute("selectedStatus", status);
+        model.addAttribute("selectedCategoryId", categoryId);
+        model.addAttribute("keyword", keyword);
         return "admin/product/list";
     }
 

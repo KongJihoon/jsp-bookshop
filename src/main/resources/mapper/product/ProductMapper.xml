@@ -58,6 +58,7 @@
     </insert>
 
     <select id="findAllByAdminProductList"
+            parameterType="hello.bookshop.common.dto.PageRequest"
             resultType="hello.bookshop.product.dto.response.AdminProductListResponse">
 
         SELECT
@@ -74,9 +75,52 @@
         LEFT JOIN category c
             ON p.category_id = c.category_id
         WHERE p.deleted_at IS NULL
-        ORDER BY p.product_id DESC
+
+        <if test="categoryId != null">
+            AND p.category_id = #{categoryId}
+        </if>
+
+        <if test="status != null">
+            AND p.status = #{status}
+        </if>
+
+        <if test="keyword != null">
+            AND (
+            p.name LIKE CONCAT('%', #{keyword}, '%')
+            OR p.author LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+
+        ORDER BY p.created_at DESC
+        LIMIT #{size}
+        OFFSET #{offset}
 
 
+
+    </select>
+
+    <select id="countAdminProductList"
+            parameterType="hello.bookshop.common.dto.PageRequest"
+            resultType="int">
+
+        SELECT COUNT(*)
+        FROM product p
+        WHERE p.deleted_at IS NULL
+
+        <if test="categoryId != null">
+            AND category_id = #{categoryId}
+        </if>
+
+        <if test="status != null">
+            AND p.status = #{status}
+        </if>
+
+        <if test="keyword != null">
+            AND (
+            p.name LIKE CONCAT('%', #{keyword}, '%')
+            OR p.author LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
 
     </select>
 

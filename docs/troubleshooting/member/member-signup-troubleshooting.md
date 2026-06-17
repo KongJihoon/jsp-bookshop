@@ -2,7 +2,7 @@
 
 ## 1. JSP 정적 리소스(CSS/JS) 경로 문제
 
-### 문제
+### 문제 상황
 
 다음처럼 CSS를 연결했지만 적용되지 않았다.
 
@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="/src/main/resources/static/css/bookshop.css">
 ```
 
-### 원인
+### 원인 분석
 
 브라우저는 프로젝트 내부 경로를 알 수 없다.
 
@@ -22,7 +22,7 @@ src/main/resources/static
 
 하위 파일을 웹 경로 `/`로 매핑한다.
 
-### 해결
+### 해결 과정
 
 ```jsp
 <link rel="stylesheet" href="${contextPath}/css/bookshop.css">
@@ -32,7 +32,7 @@ src/main/resources/static
 
 # 2. JSP 직접 접근 문제
 
-## 문제
+## 문제 상황
 
 회원가입 페이지 이동 시 JSP 경로로 직접 접근하려고 했다.
 
@@ -40,13 +40,13 @@ src/main/resources/static
 href="/WEB-INF/views/member/signup.jsp"
 ```
 
-## 원인
+## 원인 분석
 
 `WEB-INF` 내부 파일은 외부에서 직접 접근할 수 없다.
 
 반드시 Controller를 거쳐야 한다.
 
-## 해결
+## 해결 과정
 
 ```jsp
 href="${contextPath}/member/signup"
@@ -68,7 +68,7 @@ public String signup(Model model) {
 
 # 3. @ModelAttribute DTO 값이 null로 바인딩되는 문제
 
-## 문제
+## 문제 상황
 
 요청 파라미터는 존재했지만 DTO 값은 null이었다.
 
@@ -77,13 +77,13 @@ param loginId = test123
 request loginId = null
 ```
 
-## 원인
+## 원인 분석
 
 Spring MVC는 기본적으로 setter를 통해 요청값을 바인딩한다.
 
 DTO에 setter가 없었다.
 
-## 해결
+## 해결 과정
 
 ```java
 @Getter
@@ -92,7 +92,7 @@ public class MemberSignUpRequest {
 }
 ```
 
-## 정리
+## 결과
 
 Setter 지양은 Entity 기준으로 많이 이야기한다.
 
@@ -103,11 +103,11 @@ Request DTO는 HTTP 요청 데이터를 담는 객체이므로 setter 사용이 
 
 # 4. Validation 에러 메시지를 JSP alert로 출력
 
-## 문제
+## 문제 상황
 
 Validation 실패 시 화면은 유지되지만 에러 메시지가 사용자에게 보이지 않았다.
 
-## 해결
+## 해결 과정
 
 Controller:
 
@@ -144,7 +144,7 @@ alert(${errorMessage});
 
 # 5. JSTL ClassNotFoundException 문제
 
-## 문제
+## 문제 상황
 
 다음 오류 발생:
 
@@ -153,11 +153,11 @@ ClassNotFoundException:
 jakarta.servlet.jsp.jstl.core.ConditionalTagSupport
 ```
 
-## 원인
+## 원인 분석
 
 Spring Boot 3은 `jakarta` 기반 JSTL 의존성이 필요하다.
 
-## 해결
+## 해결 과정
 
 ```gradle
 implementation 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.2'
@@ -174,7 +174,7 @@ JSP:
 
 # 6. Ajax 중복 확인 URL 문제
 
-## 문제
+## 문제 상황
 
 404 발생:
 
@@ -182,7 +182,7 @@ JSP:
 GET /signup/check-login-id 404
 ```
 
-## 원인
+## 원인 분석
 
 Controller 상단에 클래스 레벨 매핑이 존재했다.
 
@@ -196,7 +196,7 @@ Controller 상단에 클래스 레벨 매핑이 존재했다.
 /member/signup/check-login-id
 ```
 
-## 해결
+## 해결 과정
 
 ```javascript
 fetch(
@@ -210,11 +210,11 @@ fetch(
 
 # 7. form submit 검증이 동작하지 않은 문제
 
-## 문제
+## 문제 상황
 
 중복 확인을 하지 않아도 회원가입이 진행되었다.
 
-## 원인
+## 원인 분석
 
 다음 코드가 header 검색 form을 선택하고 있었다.
 
@@ -224,7 +224,7 @@ document.querySelector("form")
 
 header.jsp 내부 form이 먼저 선택되었다.
 
-## 해결
+## 해결 과정
 
 회원가입 form에 id 부여:
 

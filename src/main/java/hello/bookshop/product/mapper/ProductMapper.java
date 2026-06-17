@@ -1,9 +1,11 @@
 package hello.bookshop.product.mapper;
 
 
+import hello.bookshop.common.dto.PageRequest;
 import hello.bookshop.product.domain.Product;
 import hello.bookshop.product.domain.ProductImage;
 import hello.bookshop.product.dto.response.AdminProductListResponse;
+import hello.bookshop.product.type.ProductStatus;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -15,7 +17,9 @@ public interface ProductMapper {
 
     void saveProductImage(ProductImage productImage);
 
-    List<AdminProductListResponse> findAllByAdminProductList();
+    List<AdminProductListResponse> findAllByAdminProductList(PageRequest pageRequest);
+
+    int countAdminProductList(PageRequest pageRequest);
 
 
 }
