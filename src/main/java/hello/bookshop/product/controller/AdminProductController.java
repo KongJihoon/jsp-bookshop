@@ -5,9 +5,10 @@ import hello.bookshop.category.service.CategoryService;
 import hello.bookshop.common.exception.category.NotFoundCategoryException;
 import hello.bookshop.common.exception.product.FileUploadException;
 import hello.bookshop.common.session.SessionConst;
-import hello.bookshop.member.dto.SessionMemberDto;
-import hello.bookshop.product.dto.ProductCreateRequest;
-import hello.bookshop.product.service.ProductService;
+import hello.bookshop.member.dto.response.SessionMemberDto;
+import hello.bookshop.product.dto.request.ProductCreateRequest;
+import hello.bookshop.product.dto.response.AdminProductListResponse;
+import hello.bookshop.product.service.AdminProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,10 +22,10 @@ import java.util.List;
 @Controller
 @RequestMapping("/admin/product")
 @RequiredArgsConstructor
-public class ProductController {
+public class AdminProductController {
 
 
-    private final ProductService productService;
+    private final AdminProductService adminProductService;
 
     private final CategoryService categoryService;
 
@@ -35,7 +36,7 @@ public class ProductController {
 
         model.addAttribute("product", new ProductCreateRequest());
         model.addAttribute("categories", categories);
-        return "product/add";
+        return "admin/product/add";
     }
 
     @PostMapping("/add")
@@ -54,12 +55,12 @@ public class ProductController {
 
             model.addAttribute("categories", categoryService.findAllByCategories());
 
-            return "product/add";
+            return "admin/product/add";
         }
 
         try {
 
-            productService.createProduct(
+            adminProductService.createProduct(
                     request, loginMember.getMemberId()
             );
 
@@ -73,12 +74,29 @@ public class ProductController {
             model.addAttribute("errorMessage", e.getMessage());
             model.addAttribute("categories", categoryService.findAllByCategories());
 
-            return "product/add";
+            return "admin/product/add";
         }
 
 
         return "redirect:/admin/dashboard";
 
     }
+
+    /**
+     * 관리자 도서 목록 조회
+     */
+    @GetMapping("/list")
+    public String productList(Model model) {
+
+        List<AdminProductListResponse> products = adminProductService.findAdminProductList();
+
+        List<Category> categories = categoryService.findAllByCategories();
+
+        model.addAttribute("products", products);
+        model.addAttribute("categories", categories);
+
+        return "admin/product/list";
+    }
+
 
 }

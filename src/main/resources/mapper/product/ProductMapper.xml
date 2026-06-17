@@ -57,5 +57,28 @@
 
     </insert>
 
+    <select id="findAllByAdminProductList"
+            resultType="hello.bookshop.product.dto.response.AdminProductListResponse">
+
+        SELECT
+            p.product_id,
+            p.name,
+            p.author,
+            p.publisher,
+            p.price,
+            p.stock_quantity,
+            p.status,
+            c.category_name,
+            p.created_at
+        FROM product p
+        LEFT JOIN category c
+            ON p.category_id = c.category_id
+        WHERE p.deleted_at IS NULL
+        ORDER BY p.product_id DESC
+
+
+
+    </select>
+
 
 </mapper>

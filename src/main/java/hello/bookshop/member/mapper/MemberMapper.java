@@ -1,7 +1,7 @@
 package hello.bookshop.member.mapper;
 
 import hello.bookshop.member.domain.Member;
-import hello.bookshop.member.dto.MemberInfoResponse;
+import hello.bookshop.member.dto.response.MemberInfoResponse;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

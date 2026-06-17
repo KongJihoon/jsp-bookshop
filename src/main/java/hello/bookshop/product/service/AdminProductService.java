@@ -10,7 +10,8 @@ import hello.bookshop.member.domain.Member;
 import hello.bookshop.member.mapper.MemberMapper;
 import hello.bookshop.product.domain.Product;
 import hello.bookshop.product.domain.ProductImage;
-import hello.bookshop.product.dto.ProductCreateRequest;
+import hello.bookshop.product.dto.request.ProductCreateRequest;
+import hello.bookshop.product.dto.response.AdminProductListResponse;
 import hello.bookshop.product.mapper.ProductMapper;
 import hello.bookshop.product.type.ProductImageType;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class ProductService {
+public class AdminProductService {
 
     private final MemberMapper memberMapper;
 
@@ -60,6 +61,10 @@ public class ProductService {
 
         saveDetailImages(product.getProductId(), request);
 
+    }
+
+    public List<AdminProductListResponse> findAdminProductList() {
+        return productMapper.findAllByAdminProductList();
     }
 
     /**
