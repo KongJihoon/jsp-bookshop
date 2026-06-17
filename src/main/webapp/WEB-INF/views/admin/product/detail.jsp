@@ -33,8 +33,10 @@
 
             <div>
                 <button class="btn btn-outline-secondary">목록</button>
-                <button class="btn btn-primary">수정</button>
+                <a href="${contextPath}/admin/product/${productId}/edit" class="btn btn-primary">수정</a>
             </div>
+
+
 
         </div>
 
@@ -168,12 +170,26 @@
             </div>
         </div>
 
+        <button type="button"
+                class="btn btn-outline-danger"
+                data-bs-toggle="modal"
+                data-bs-target="#commonConfirmModal"
+                data-title="도서 삭제"
+                data-message="삭제한 도서는 복구할 수 없습니다."
+                data-form-id="deleteProductForm">
+            도서 삭제
+        </button>
+
+        <form id="deleteProductForm"
+              action="${contextPath}/admin/product/${product.productId}/delete"
+              method="post">
+        </form>
 
     </main>
 
 </div>
 
-
+<jsp:include page="../../common/cofirm-modal.jsp"/>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>

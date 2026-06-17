@@ -164,5 +164,124 @@
 
     </select>
 
+    <select id="findByProductIdAndDeletedAtIsNull"
+            parameterType="long"
+            resultType="hello.bookshop.product.domain.Product">
+
+        SELECT
+            product_id,
+            category_id,
+            name,
+            author,
+            publisher,
+            price,
+            stock_quantity,
+            description,
+            status,
+            created_by,
+            updated_by,
+            created_at,
+            updated_at,
+            deleted_at
+        FROM product
+        WHERE product_id = #{productId}
+        AND deleted_at IS NULL
+
+    </select>
+
+    <update id="updateProduct"
+            parameterType="hello.bookshop.product.domain.Product">
+
+        UPDATE product
+        SET
+        category_id = #{categoryId},
+        name = #{name},
+        author = #{author},
+        publisher = #{publisher},
+        price = #{price},
+        stock_quantity = #{stockQuantity},
+        description = #{description},
+        status = #{status},
+        updated_by = #{updatedBy},
+        updated_at = NOW()
+        WHERE product_id = #{productId}
+
+    </update>
+    
+    <select id="findThumbnailImageByProductId"
+            parameterType="long"
+            resultType="hello.bookshop.product.domain.ProductImage">
+        SELECT
+            product_image_id,
+            product_id,
+            original_file_name,
+            stored_file_name,
+            image_path,
+            image_type,
+            sort_order,
+            created_at
+        FROM product_image
+        WHERE product_id = #{productId}
+        AND image_type = 'THUMBNAIL'
+        LIMIT 1
+    </select>
+    
+    <select id="findProductImagesByProductIdAndType"
+            resultType="hello.bookshop.product.domain.ProductImage">
+
+        SELECT
+        product_image_id,
+        product_id,
+        original_file_name,
+        stored_file_name,
+        image_path,
+        image_type,
+        sort_order,
+        created_at
+        FROM product_image
+        WHERE product_id = #{productId}
+        AND image_type = #{imageType}
+        ORDER BY sort_order ASC
+
+
+    </select>
+    
+    <delete id="deleteThumbnailImageByProductId"
+            parameterType="long">
+        DELETE
+        FROM product_image
+        WHERE product_id = #{productId}
+        AND image_type = 'THUMBNAIL'
+    </delete>
+
+    <delete id="deleteProductImagesByProductIdAndType">
+        DELETE
+        FROM product_image
+        WHERE product_id = #{productId}
+        AND image_type = #{imageType}
+    </delete>
+
+    <select id="countAllProducts" resultType="long">
+        SELECT COUNT(*)
+        FROM product
+        WHERE deleted_at IS NULL
+
+    </select>
+
+    <select id="countSoldOutProducts" resultType="long">
+        SELECT COUNT(*)
+        FROM product
+        WHERE deleted_at IS NULL AND status = 'SOLD_OUT'
+    </select>
+
+    <update id="deleteProduct" parameterType="hello.bookshop.product.domain.Product">
+        UPDATE product
+        SET status = #{status},
+            updated_by = #{updatedBy},
+            updated_at = NOW(),
+            deleted_at = NOW()
+        WHERE product_id = #{productId}
+        AND deleted_at IS NULL
+    </update>
 
 </mapper>

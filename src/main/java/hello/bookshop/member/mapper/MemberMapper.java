@@ -26,4 +26,5 @@ public interface MemberMapper {
 
     boolean existsByEmailAndMemberIdNot(@Param("email") String email, @Param("memberId") Long memberId);
 
+    long countAllUsers();
 }

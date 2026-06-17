@@ -119,4 +119,10 @@
 
     </update>
 
+    <select id="countAllUsers" resultType="long">
+        SELECT COUNT(*)
+        FROM member
+        WHERE withdrawn_at IS NULL AND member_type = 'USER'
+    </select>
+
 </mapper>

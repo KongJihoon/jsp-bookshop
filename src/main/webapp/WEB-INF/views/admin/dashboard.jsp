@@ -49,7 +49,7 @@
                     <div class="card border-0 shadow-sm rounded-4">
                         <div class="card-body">
                             <p class="text-muted mb-1">전체 도서</p>
-                            <h3 class="fw-bold mb-0">0</h3>
+                            <h3 class="fw-bold mb-0">${dashboard.totalProductCount}</h3>
                         </div>
                     </div>
                 </div>
@@ -58,7 +58,7 @@
                     <div class="card border-0 shadow-sm rounded-4">
                         <div class="card-body">
                             <p class="text-muted mb-1">전체 회원</p>
-                            <h3 class="fw-bold mb-0">0</h3>
+                            <h3 class="fw-bold mb-0">${dashboard.totalMemberCount}</h3>
                         </div>
                     </div>
                 </div>
@@ -76,7 +76,7 @@
                     <div class="card border-0 shadow-sm rounded-4">
                         <div class="card-body">
                             <p class="text-muted mb-1">품절 도서</p>
-                            <h3 class="fw-bold mb-0">0</h3>
+                            <h3 class="fw-bold mb-0">${dashboard.soldOutProductCount}</h3>
                         </div>
                     </div>
                 </div>
@@ -85,7 +85,7 @@
             <!-- 관리 바로가기 -->
             <div class="row g-4">
                 <div class="col-md-4">
-                    <a href="${contextPath}/admin/books/new" class="text-decoration-none">
+                    <a href="${contextPath}/admin/product/add" class="text-decoration-none">
                         <div class="card border-0 shadow-sm rounded-4 h-100">
                             <div class="card-body">
                                 <h5 class="fw-bold text-dark">도서 등록</h5>
@@ -98,7 +98,7 @@
                 </div>
 
                 <div class="col-md-4">
-                    <a href="${contextPath}/admin/books" class="text-decoration-none">
+                    <a href="${contextPath}/admin/product/list" class="text-decoration-none">
                         <div class="card border-0 shadow-sm rounded-4 h-100">
                             <div class="card-body">
                                 <h5 class="fw-bold text-dark">도서 관리</h5>

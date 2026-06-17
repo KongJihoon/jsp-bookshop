@@ -101,4 +101,17 @@ public class FileStore {
         return originalFileName.substring(pos + 1);
     }
 
+    public void deleteFile(String storedFileName) {
+
+        if (storedFileName == null || storedFileName.isBlank()) {
+            return;
+        }
+
+        File file = new File(uploadDir + storedFileName);
+
+        if (file.exists()) {
+            file.delete();
+        }
+
+    }
 }
