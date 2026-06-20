@@ -1,5 +1,6 @@
 package hello.bookshop.product.dto.response;
 
+import hello.bookshop.product.type.ProductStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,6 +29,8 @@ public class UserProductDetailResponse {
     private Integer stockQuantity;
 
     private String description;
+
+    private ProductStatus status;
 
     private List<ProductImageResponse> images;
 

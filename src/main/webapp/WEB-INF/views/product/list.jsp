@@ -71,9 +71,21 @@
 
             <c:if test="${empty products}">
                 <div class="col-12">
-                    <div class="card-border-0 shadow-sm rounded-4">
+                    <div class="card border-0 shadow-sm rounded-4">
                         <div class="card-body text-center text-muted py-5">
-                            해당 카테고리에 등록된 도서가 없습니다.
+                            <c:choose>
+                                <c:when test="${not empty keyword}">
+                                    검색 결과가 없습니다.
+                                </c:when>
+
+                                <c:when test="${not empty selectedCategoryId}">
+                                    해당 카테고리에 등록된 도서가 없습니다.
+                                </c:when>
+
+                                <c:otherwise>
+                                    등록된 도서가 없습니다.
+                                </c:otherwise>
+                            </c:choose>
                         </div>
                     </div>
                 </div>
@@ -85,25 +97,57 @@
 
             <nav class="mt-5">
                 <ul class="pagination justify-content-center">
+
+
                     <c:if test="${productPage.hasPrevious}">
+
+                        <c:url var="previousPageUrl" value="/products">
+
+                            <c:param name="page" value="${productPage.page - 1}"/>
+                            <c:if test="${not empty selectedCategoryId}">
+                                <c:param name="categoryId" value="${selectedCategoryId}"/>
+                            </c:if>
+                            <c:if test="${not empty keyword}">
+                                <c:param name="keyword" value="${keyword}"/>
+                            </c:if>
+
+                        </c:url>
                         <li class="page-item">
-                            <a class="page-link" href="${contextPath}/products?page=${productPage.page - 1}&categoryId=${selectedCategoryId}">
-                                이전
-                            </a>
+                            <a class="page-link" href="${previousPageUrl}">이전</a>
                         </li>
                     </c:if>
                     
                     <c:forEach begin="1"
                     end="${productPage.totalPages}"
                     var="pageNumber">
+                        <c:url var="pageUrl" value="/products">
+                            <c:param name="page" value="${pageNumber}"/>
+                            <c:if test="${not empty selectedCategoryId}">
+                                <c:param name="categoryId" value="${selectedCategoryId}"/>
+                            </c:if>
+                            <c:if test="${not empty keyword}">
+                                <c:param name="keyword" value="${keyword}"/>
+                            </c:if>
+                        </c:url>
+
                         <li class="page-item ${productPage.page == pageNumber ? 'active' : ''}">
-                            <a class="page-link" href="${contextPath}/products?page=${pageNumber}&categoryId=${selectedCategoryId}">${pageNumber}</a>
+                            <a class="page-link" href="${pageUrl}">${pageNumber}</a>
                         </li>
                     </c:forEach>
                     
                     <c:if test="${productPage.hasNext}">
+                        <c:url var="nextPageUrl" value="/products">
+                            <c:param name="page" value="${productPage.page + 1}"/>
+                            <c:if test="${not empty selectedCategoryId}">
+                                <c:param name="categoryId" value="${selectedCategoryId}"/>
+                            </c:if>
+                            <c:if test="${not empty keyword}">
+                                <c:param name="keyword" value="${keyword}"/>
+                            </c:if>
+                        </c:url>
+
                         <li class="page-item">
-                            <a class="page-link" href="${contextPath}/products?page=${productPage.page + 1}&categoryId=${selectedCategoryId}">다음</a>
+                            <a class="page-link" href="${nextPageUrl}">다음</a>
                         </li>
                         
                     </c:if>

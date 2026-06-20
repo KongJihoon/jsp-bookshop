@@ -88,11 +88,17 @@
                             </div>
 
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <span class="text-muted">재고</span>
+                                <span class="text-muted">판매 상태</span>
 
-                                <span>
-                                <fmt:formatNumber value="${product.stockQuantity}" pattern="#,###"/>권
-                            </span>
+                                <c:choose>
+                                    <c:when test="${product.status == 'ACTIVE'}">
+                                        <span class="badge bg-success">판매중</span>
+                                    </c:when>
+
+                                    <c:otherwise>
+                                        <span class="badge bg-secondary">품절</span>
+                                    </c:otherwise>
+                                </c:choose>
                             </div>
                         </div>
 
@@ -102,11 +108,78 @@
                             <p class="text-muted small mb-0">장바구니 및 주문 기능은 준비 중입니다.</p>
                         </div>
 
-                        <div class="d-grid gap-2 d-md-flex">
-                            <button class="btn btn-primary btn-lg flex-fill">장바구니 담기</button>
+                        <form id="cartAddForm" action="${contextPath}/cart/items" method="post">
 
-                            <button class="btn btn-outline-primary btn-lg flex-fill">바로 구매</button>
-                        </div>
+                            <input type="hidden" name="productId" value="${product.productId}">
+
+                            <div class="bg-light rounded-4 p-4 mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="fw-semibold">수량</span>
+
+                                    <div class="quantity-control">
+                                        <button type="button"
+                                        id="decreaseQuantity"
+                                        class="quantity-btn"
+                                        aria-label="수량 감소">
+                                            -
+                                        </button>
+                                        <span id="quantityText" class="quantity-value">
+                                            1
+                                        </span>
+                                        <button type="button"
+                                        id="increaseQuantity"
+                                        class="quantity-btn"
+                                        aria-label="수량 증가">
+                                            +
+                                        </button>
+                                    </div>
+
+                                    <input type="hidden" id="quantity" name="quantity" value="1">
+
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted">총 상품금액</span>
+
+                                    <strong id="totalPrice" class="fs-5 text-primary">
+                                        <fmt:formatNumber value="${product.price}" pattern="#,###"/>원
+                                    </strong>
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2 d-md-flex">
+                                <c:choose>
+                                    <c:when test="${empty sessionScope.loginMember}">
+                                        <button type="button"
+                                        class="btn btn-primary btn-lg flex-fill"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#commonConfirmModal"
+                                        data-title="로그인이 필요합니다."
+                                        data-message="장바구니는 로그인 후 이용하실 수 있습니다. 로그인하시겠습니까?"
+                                        data-confirm-text="로그인"
+                                        data-confirm-class="btn-primary"
+                                        data-action-type="redirect"
+                                        data-url="${contextPath}/member/login">
+                                            장바구니 담기
+                                        </button>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <button type="button"
+                                        class="btn btn-primary btn-lg flex-fill"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#commonConfirmModal"
+                                        data-title="장바구니 담기"
+                                        data-message="선택한 상품을 장바구니에 담으시겠습니까?"
+                                        data-confirm-text="담기"
+                                        data-confirm-class="btn-primary"
+                                        data-action-type="submit"
+                                        data-form-id="cartAddForm">
+                                            장바구니 담기
+                                        </button>
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
+
+                        </form>
 
 
                     </div>
@@ -175,9 +248,49 @@
 
 
 </main>
+<jsp:include page="../common/confirm-modal.jsp"/>
 <jsp:include page="../common/footer.jsp"/>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+
+<script>
+    const quantityInput = document.getElementById("quantity");
+    const quantityText = document.getElementById("quantityText");
+    const decreaseButton = document.getElementById("decreaseQuantity");
+    const increaseButton = document.getElementById("increaseQuantity");
+    const totalPriceElement = document.getElementById("totalPrice");
+
+    const productPrice = Number("${product.price}");
+    const minQuantity = 1;
+
+    function updateQuantity(nextQuantity) {
+        let quantity = Number(nextQuantity);
+
+        if (Number.isNaN(quantity) || quantity < minQuantity) {
+            quantity = minQuantity;
+        }
+
+        quantityInput.value = quantity;
+        quantityText.textContent = quantity;
+        decreaseButton.disabled = quantity <= minQuantity;
+
+        const totalPrice = productPrice * quantity;
+        totalPriceElement.textContent = totalPrice.toLocaleString("ko-KR") + "원";
+
+    }
+
+    decreaseButton.addEventListener("click", function () {
+        updateQuantity(Number(quantityInput.value) - 1);
+    })
+
+    increaseButton.addEventListener("click", function () {
+        updateQuantity(Number(quantityInput.value) + 1);
+    })
+
+    updateQuantity(quantityInput.value);
+
+
 </script>
 
 </body>

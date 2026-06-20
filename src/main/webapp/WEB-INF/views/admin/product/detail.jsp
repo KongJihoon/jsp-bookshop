@@ -176,6 +176,9 @@
                 data-bs-target="#commonConfirmModal"
                 data-title="도서 삭제"
                 data-message="삭제한 도서는 복구할 수 없습니다."
+                data-confirm-text="삭제"
+                data-confirm-class="btn-danger"
+                data-action-type="submit"
                 data-form-id="deleteProductForm">
             도서 삭제
         </button>
@@ -189,7 +192,7 @@
 
 </div>
 
-<jsp:include page="../../common/cofirm-modal.jsp"/>
+<jsp:include page="../../common/confirm-modal.jsp"/>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>

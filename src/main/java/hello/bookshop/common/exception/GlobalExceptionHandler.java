@@ -5,7 +5,9 @@ import hello.bookshop.common.exception.category.NotFoundCategoryException;
 import hello.bookshop.common.exception.member.DuplicateMemberException;
 import hello.bookshop.common.exception.member.MemberLoginFailedException;
 import hello.bookshop.common.exception.member.MemberNotFoundException;
+import hello.bookshop.common.exception.member.NotLoginMemberException;
 import hello.bookshop.common.exception.product.ProductNotFoundException;
+import hello.bookshop.common.exception.product.StockQuantityExceedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -34,6 +36,16 @@ public class GlobalExceptionHandler {
 
         log.warn("로그인 실패 발생 = {}", e.getMessage());
 
+        model.addAttribute("errorMessage", e.getMessage());
+
+        return "member/loginForm";
+    }
+
+
+    /**  비로그인 유저 예외 처리 */
+    @ExceptionHandler(NotLoginMemberException.class)
+    public String handleNotLoginMemberException(NotLoginMemberException e, Model model) {
+        log.warn("비 로그인 유저 접근 = {}", e.getMessage());
         model.addAttribute("errorMessage", e.getMessage());
 
         return "member/loginForm";
@@ -87,6 +99,20 @@ public class GlobalExceptionHandler {
 
 
         return "redirect:/admin/product/{productId}";
+    }
+
+    @ExceptionHandler(StockQuantityExceedException.class)
+    public String handleStockQuantityExceedException(StockQuantityExceedException e, RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+
+        return "redirect:/product/detail";
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public String handleIllegalArgumentException(IllegalArgumentException e, RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+
+        return "redirect:/product/detail";
     }
 
 

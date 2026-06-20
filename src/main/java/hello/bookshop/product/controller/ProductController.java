@@ -23,14 +23,16 @@ public class ProductController {
     public String productList(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) String keyword,
             Model model
     ) {
 
-        PageResponse<UserProductListResponse> productPage = productService.findUserProductList(page, categoryId);
+        PageResponse<UserProductListResponse> productPage = productService.findUserProductList(page, categoryId, keyword);
 
         model.addAttribute("productPage", productPage);
         model.addAttribute("products", productPage.getContent());
         model.addAttribute("selectedCategoryId", categoryId);
+        model.addAttribute("keyword", keyword);
 
         return "product/list";
 
