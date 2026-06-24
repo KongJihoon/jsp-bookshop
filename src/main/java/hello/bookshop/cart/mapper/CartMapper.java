@@ -2,6 +2,7 @@ package hello.bookshop.cart.mapper;
 
 import hello.bookshop.cart.domain.Cart;
 import hello.bookshop.cart.domain.CartItem;
+import hello.bookshop.cart.dto.response.CartItemDeleteResponse;
 import hello.bookshop.cart.dto.response.CartItemForUpdateResponse;
 import hello.bookshop.cart.dto.response.CartItemResponse;
 import org.apache.ibatis.annotations.Mapper;
@@ -41,5 +42,9 @@ public interface CartMapper {
             @Param("memberId") Long memberId,
             @Param("quantity") Integer quantity
     );
+
+    int deleteCartItem(
+            @Param("cartItemId") Long cartItemId,
+            @Param("memberId") Long memberId);
 
 }

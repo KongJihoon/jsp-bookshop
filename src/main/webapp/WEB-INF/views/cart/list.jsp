@@ -38,163 +38,178 @@
             </c:when>
 
             <c:otherwise>
+                <form id="cartOrderForm"
+                      action="${contextPath}/orders/form/cart"
+                      method="post">
 
-                <div class="row g-4">
-                    <!-- 장바구니 상품 목록 -->
-                    <div class="col-lg-8">
+                    <div class="row g-4">
+                        <!-- 장바구니 상품 목록 -->
+                        <div class="col-lg-8">
 
-                        <!-- 전체 선택 -->
-                        <div class="card border-0 shadow-sm rounded-4 mb-3">
-                            <div class="card-body py-3 px-4">
-                                <div class="form-check mb-0">
-                                    <input type="checkbox"
-                                        id="selectAllCartItems"
-                                        class="form-check-input"
-                                        checked>
+                            <!-- 전체 선택 -->
+                            <div class="card border-0 shadow-sm rounded-4 mb-3">
+                                <div class="card-body py-3 px-4">
+                                    <div class="form-check mb-0">
+                                        <input type="checkbox"
+                                               id="selectAllCartItems"
+                                               class="form-check-input"
+                                               checked>
 
-                                    <label for="selectAllCartItems">전체 선택</label>
+                                        <label for="selectAllCartItems">전체 선택</label>
+                                    </div>
                                 </div>
                             </div>
+
+                            <c:forEach var="cartItem" items="${cartItems}">
+
+                                <div class="card border-0 shadow-sm rounded-4 mb-3 cart-item-card"
+                                     data-price="${cartItem.price}"
+                                     data-cart-item-id="${cartItem.cartItemId}">
+                                    <div class="card-body p-4">
+
+                                        <div class="d-flex gap-3">
+                                            <!-- 개별선택 -->
+                                            <div class="pt-2">
+                                                <input type="checkbox"
+                                                       name="cartItemIds"
+                                                       class="form-check-input cart-item-checkbox"
+                                                       value="${cartItem.cartItemId}"
+                                                       checked>
+                                            </div>
+
+                                            <!-- 상품 이미지 -->
+                                            <a href="${contextPath}/products/${cartItem.productId}"
+                                               class="border rounded-4 bg-white d-flex align-items-center justify-content-center text-decoration-none"
+                                               style="width: 120px; height: 160px; overflow: hidden; flex-shrink: 0;">
+
+                                                <c:choose>
+                                                    <c:when test="${not empty cartItem.imagePath}">
+                                                        <img src="${contextPath}${cartItem.imagePath}" alt="${cartItem.productName}"
+                                                             class="img-fluid"
+                                                             style="width: 100%; height: 100%; object-fit: cover">
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <span class="text-muted small">도서 이미지</span>
+                                                    </c:otherwise>
+                                                </c:choose>
+
+                                            </a>
+                                            <!-- 상품 정보 -->
+                                            <div class="flex-grow-1">
+                                                <div class="d-flex justify-content-between gap-3">
+                                                    <div>
+                                                        <a href="${contextPath}/products/${cartItem.productId}"
+                                                           class="text-decoration-none text-dark">
+                                                            <h5 class="fw-bold mb-2">${cartItem.productName}</h5>
+                                                        </a>
+
+                                                        <p class="text-muted small mb-3">${cartItem.author} 지음 · ${cartItem.publisher}</p>
+
+                                                        <p class="fw-bold mb-0">
+                                                            <fmt:formatNumber value="${cartItem.price}" pattern="#,###"/>원
+                                                        </p>
+                                                    </div>
+
+                                                    <button type="button" class="btn-close" aria-label="장바구니 상품 삭제"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#commonConfirmModal"
+                                                            data-title="장바구니 상품 삭제"
+                                                            data-message="선택한 상품을 장바구니에서 삭제하시겠습니까?"
+                                                            data-confirm-text="삭제"
+                                                            data-confirm-class="btn-danger"
+                                                            data-action-type="fetch-delete">
+
+                                                    </button>
+                                                </div>
+                                                <!-- 수량 / 상품 금액-->
+                                                <div class="d-flex justify-content-between align-items-start mt-4">
+                                                    <div>
+                                                        <p class="form-label small text-muted mb-2">수량</p>
+
+                                                        <div class="quantity-control">
+                                                            <button type="button"
+                                                                    class="quantity-btn cart-quantity-decrease"
+                                                                    aria-label="수량 감소">
+                                                                -
+                                                            </button>
+
+                                                            <span class="quantity-value cart-quantity-value">${cartItem.quantity}</span>
+
+                                                            <button type="button"
+                                                                    class="quantity-btn cart-quantity-increase">
+                                                                +
+                                                            </button>
+                                                        </div>
+                                                        <input type="hidden" value="${cartItem.quantity}" class="cart-quantity-input">
+
+                                                    </div>
+
+                                                    <div class="text-end">
+                                                        <p class="text-muted small mb-1">상품 금액</p>
+                                                        <strong class="fs-5 text-primary cart-item-total-price">
+                                                            <fmt:formatNumber value="${cartItem.itemTotalPrice}" pattern="#,###"/>원
+                                                        </strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+                                </div>
+
+
+                            </c:forEach>
+
+
                         </div>
 
-                        <c:forEach var="cartItem" items="${cartItems}">
-
-                            <div class="card border-0 shadow-sm rounded-4 mb-3 cart-item-card"
-                                data-price="${cartItem.price}"
-                                data-cart-item-id="${cartItem.cartItemId}">
+                        <!-- 주문 요약 -->
+                        <div class="col-lg-4">
+                            <div class="card border-0 shadow-sm rounded-4 position-sticky"
+                                 style="top: 120px">
                                 <div class="card-body p-4">
+                                    <h5 class="fw-bold mb-4">주문 예상 금액</h5>
 
-                                    <div class="d-flex gap-3">
-                                        <!-- 개별선택 -->
-                                        <div class="pt-2">
-                                            <input type="checkbox"
-                                                class="form-check-input cart-item-checkbox"
-                                                value="${cartItem.cartItemId}"
-                                                checked>
-                                        </div>
+                                    <div class="d-flex justify-content-between mb-3">
+                                        <span class="text-muted">선택 상품 금액</span>
 
-                                        <!-- 상품 이미지 -->
-                                        <a href="${contextPath}/products/${cartItem.productId}"
-                                           class="border rounded-4 bg-white d-flex align-items-center justify-content-center text-decoration-none"
-                                           style="width: 120px; height: 160px; overflow: hidden; flex-shrink: 0;">
-
-                                            <c:choose>
-                                                <c:when test="${not empty cartItem.imagePath}">
-                                                    <img src="${contextPath}${cartItem.imagePath}" alt="${cartItem.productName}"
-                                                        class="img-fluid"
-                                                        style="width: 100%; height: 100%; object-fit: cover">
-                                                </c:when>
-                                                <c:otherwise>
-                                                    <span class="text-muted small">도서 이미지</span>
-                                                </c:otherwise>
-                                            </c:choose>
-
-                                        </a>
-                                        <!-- 상품 정보 -->
-                                        <div class="flex-grow-1">
-                                            <div class="d-flex justify-content-between gap-3">
-                                                <div>
-                                                    <a href="${contextPath}/products/${cartItem.productId}"
-                                                        class="text-decoration-none text-dark">
-                                                        <h5 class="fw-bold mb-2">${cartItem.productName}</h5>
-                                                    </a>
-
-                                                    <p class="text-muted small mb-3">${cartItem.author} 지음 · ${cartItem.publisher}</p>
-
-                                                    <p class="fw-bold mb-0">
-                                                        <fmt:formatNumber value="${cartItem.price}" pattern="#,###"/>원
-                                                    </p>
-                                                </div>
-
-                                                <button type="button" class="btn-close" aria-label="장바구니 상품 삭제">
-
-                                                </button>
-                                            </div>
-                                            <!-- 수량 / 상품 금액-->
-                                            <div class="d-flex justify-content-between align-items-start mt-4">
-                                                <div>
-                                                    <p class="form-label small text-muted mb-2">수량</p>
-
-                                                    <div class="quantity-control">
-                                                        <button type="button"
-                                                            class="quantity-btn cart-quantity-decrease"
-                                                            aria-label="수량 감소">
-                                                            -
-                                                        </button>
-
-                                                        <span class="quantity-value cart-quantity-value">${cartItem.quantity}</span>
-
-                                                        <button type="button"
-                                                            class="quantity-btn cart-quantity-increase">
-                                                            +
-                                                        </button>
-                                                    </div>
-                                                    <input type="hidden" value="${cartItem.quantity}" class="cart-quantity-input">
-
-                                                </div>
-
-                                                <div class="text-end">
-                                                    <p class="text-muted small mb-1">상품 금액</p>
-                                                    <strong class="fs-5 text-primary cart-item-total-price">
-                                                        <fmt:formatNumber value="${cartItem.itemTotalPrice}" pattern="#,###"/>원
-                                                    </strong>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-
-                                </div>
-                            </div>
-
-
-                        </c:forEach>
-
-
-                    </div>
-
-                    <!-- 주문 요약 -->
-                    <div class="col-lg-4">
-                        <div class="card border-0 shadow-sm rounded-4 position-sticky"
-                            style="top: 120px">
-                            <div class="card-body p-4">
-                                <h5 class="fw-bold mb-4">주문 예상 금액</h5>
-
-                                <div class="d-flex justify-content-between mb-3">
-                                    <span class="text-muted">선택 상품 금액</span>
-
-                                    <span id="selectedTotalPriceText">
+                                        <span id="selectedTotalPriceText">
                                         <fmt:formatNumber value="${cart.totalPrice}" pattern="#,###"/>원
                                     </span>
+                                    </div>
+
+                                    <hr/>
+
+                                    <div class="d-flex justify-content-between align-items-center mb-4">
+                                        <span class="fw-bold">총 결제 예정 금액</span>
+
+                                        <strong id="paymentTotalPriceText" class="fs-4 text-primary">
+                                            <fmt:formatNumber value="${cart.totalPrice}" pattern="#,###"/>원
+                                        </strong>
+                                    </div>
+
+                                    <button type="submit"
+                                            class="btn btn-primary btn-lg w-100">
+                                        선택 상품 주문하기
+                                    </button>
+
+                                    <a href="${contextPath}/products"
+                                       class="btn btn-light btn-lg w-100 mt-2">
+                                        쇼핑 계속하기
+                                    </a>
+
+
                                 </div>
-
-                                <hr/>
-
-                                <div class="d-flex justify-content-between align-items-center mb-4">
-                                    <span class="fw-bold">총 결제 예정 금액</span>
-
-                                    <strong id="paymentTotalPriceText" class="fs-4 text-primary">
-                                        <fmt:formatNumber value="${cart.totalPrice}" pattern="#,###"/>원
-                                    </strong>
-                                </div>
-
-                                <button type="button"
-                                    class="btn btn-primary btn-lg w-100">
-                                    선택 상품 주문하기
-                                </button>
-
-                                <a href="${contextPath}/products"
-                                    class="btn btn-light btn-lg w-100 mt-2">
-                                    쇼핑 계속하기
-                                </a>
-
-
                             </div>
                         </div>
+
+
                     </div>
 
+                </form>
 
-                </div>
+
 
 
 
@@ -209,6 +224,7 @@
 
 
 </main>
+<jsp:include page="../common/confirm-modal.jsp"/>
 <jsp:include page="../common/footer.jsp"/>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
@@ -220,6 +236,7 @@
     const cartItemCards = document.querySelectorAll(".cart-item-card");
     const selectedTotalPriceText = document.getElementById("selectedTotalPriceText");
     const paymentTotalPriceText = document.getElementById("paymentTotalPriceText");
+    const cartOrderForm = document.getElementById("cartOrderForm");
 
     function formatPrice(price) {
         return price.toLocaleString("ko-KR") + "원";
@@ -248,9 +265,14 @@
     }
 
     function updateSelectedTotalPrice() {
+
+        if (!selectedTotalPriceText || !paymentTotalPriceText) {
+            return;
+        }
+
         let totalPrice = 0;
 
-        cartItemCards.forEach(function (card) {
+        document.querySelectorAll(".cart-item-card").forEach(function (card) {
             const checkbox = card.querySelector(".cart-item-checkbox");
             if (!checkbox.checked) {
                 return;
@@ -267,9 +289,10 @@
     }
 
     function updateSelectAllState() {
+        const currentCheckBoxes = document.querySelectorAll(".cart-item-checkbox");
         const checkedCount = document.querySelectorAll(".cart-item-checkbox:checked").length;
 
-        selectedAllCheckBox.checked = checkedCount === itemCheckboxes.length;
+        selectedAllCheckBox.checked = currentCheckBoxes.length > 0 && checkedCount === currentCheckBoxes.length;
     }
 
     function updateQuantityOnServer(card, quantity) {
@@ -299,7 +322,7 @@
 
     if (selectedAllCheckBox) {
         selectedAllCheckBox.addEventListener("change", function () {
-            itemCheckboxes.forEach(function (checkbox) {
+            document.querySelectorAll(".cart-item-checkbox").forEach(function (checkbox) {
                 checkbox.checked= selectedAllCheckBox.checked;
             })
             updateSelectedTotalPrice();
@@ -347,7 +370,9 @@
 
                     updateItemTotalPrice(card);
                     updateSelectedTotalPrice();
-                })
+                }).catch(function (error) {
+                showToast(error.message, "danger")
+            });
 
         })
 
@@ -355,6 +380,65 @@
     });
 
     updateSelectedTotalPrice();
+
+    function deleteCartItemOnServer(card) {
+        const cartItemId = card.dataset.cartItemId;
+
+        return fetch("${contextPath}/cart/items/" + cartItemId + "/delete", {
+            method: "POST"
+        }).then(function (response) {
+            return response.json().then(function (data) {
+                if (!response.ok) {
+                    throw new Error(data.message || "장바구니 상품 삭제에 실패하였습니다.");
+                }
+                return data;
+            })
+        })
+    }
+
+    function removeCartItemCard(card) {
+        card.remove();
+
+        updateSelectedTotalPrice();
+        updateSelectAllState();
+
+        const remainingItems = document.querySelectorAll(".cart-item-card");
+
+        if (remainingItems.length === 0) {
+            setTimeout(function () {
+                location.reload();
+            },800)
+        }
+    }
+
+    document.addEventListener("confirm:fetch-delete", function (event) {
+        const button = event.detail.triggerButton;
+        const card = button.closest(".cart-item-card");
+
+        if (!card) {
+            return;
+        }
+
+        deleteCartItemOnServer(card)
+            .then(function (data) {
+                removeCartItemCard(card);
+                showToast(data.message, "success");
+            }).catch(function (error) {
+                showToast(error.message, "danger");
+        })
+    })
+
+    if (cartOrderForm) {
+        cartOrderForm.addEventListener("submit", function (event) {
+
+            const checkItems = document.querySelectorAll(".cart-item-checkbox:checked");
+
+            if (checkItems.length === 0) {
+                event.preventDefault();
+                showToast("주문할 상품을 선택해주세요.", "danger")
+            }
+        });
+    }
 
 </script>
 

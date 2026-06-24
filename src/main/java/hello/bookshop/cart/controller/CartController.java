@@ -2,6 +2,7 @@ package hello.bookshop.cart.controller;
 
 import hello.bookshop.cart.dto.request.CartAddRequest;
 import hello.bookshop.cart.dto.request.CartQuantityUpdateRequest;
+import hello.bookshop.cart.dto.response.CartItemDeleteResponse;
 import hello.bookshop.cart.dto.response.CartQuantityUpdateResponse;
 import hello.bookshop.cart.dto.response.CartResponse;
 import hello.bookshop.cart.service.CartService;
@@ -98,6 +99,32 @@ public class CartController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
                     .body(new ErrorResponse("INVALID_REQUEST", e.getMessage()));
+        }
+
+    }
+
+    /**
+     * 장바구니 상품 삭제
+     */
+    @PostMapping("/items/{cartItemId}/delete")
+    @ResponseBody
+    public ResponseEntity<?> deleteCartItem(
+            @PathVariable Long cartItemId,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) SessionMemberDto loginMember) {
+
+        if (loginMember == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResponse("NOT_LOGIN", "로그인 후 사용 가능합니다."));
+        }
+
+        try {
+            CartItemDeleteResponse response = cartService.deleteCartItem(loginMember.getMemberId(), cartItemId);
+
+            return ResponseEntity.ok(response);
+
+        } catch (CustomException e) {
+            return ResponseEntity.badRequest()
+                    .body(new ErrorResponse(e.getErrorCode(), e.getMessage()));
         }
 
     }
