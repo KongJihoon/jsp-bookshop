@@ -332,6 +332,14 @@
             AND p.category_id = #{categoryId}
         </if>
 
+        <if test="keyword != null and keyword != ''">
+            AND (
+            p.name LIKE CONCAT('%', #{keyword}, '%')
+            OR p.author LIKE CONCAT('%', #{keyword}, '%')
+            OR p.publisher LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+
         ORDER BY p.created_at DESC
         LIMIT #{size}
         OFFSET #{offset}
@@ -349,6 +357,14 @@
             AND p.category_id = #{categoryId}
         </if>
 
+        <if test="keyword != null and keyword != ''">
+            AND (
+                p.name LIKE CONCAT('%', #{keyword}, '%')
+                OR p.author LIKE CONCAT('%', #{keyword}, '%')
+                OR p.publisher LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+
     </select>
 
     <select id="findUserProductDetail"
@@ -364,7 +380,8 @@
             p.publisher,
             p.price,
             p.stock_quantity,
-            p.description
+            p.description,
+            p.status
         FROM product p
         LEFT JOIN category c
         ON p.category_id = c.category_id

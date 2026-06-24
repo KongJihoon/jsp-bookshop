@@ -68,8 +68,8 @@
             </div>
 
             <div class="col-md-6">
-                <form action="#" method="get" class="input-group">
-                    <input type="text" name="keyword" placeholder="도서명, 저자 검색" class="form-control">
+                <form action="${contextPath}/products" method="get" class="input-group">
+                    <input type="text" name="keyword" value="${keyword}" placeholder="도서명, 저자 검색" class="form-control">
                     <button type="submit" class="btn btn-primary">검색</button>
                 </form>
             </div>

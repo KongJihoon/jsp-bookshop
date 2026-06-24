@@ -116,6 +116,8 @@ class ProductServiceTest {
 
         Long categoryId = 10L;
 
+        String keyword = "test keyword";
+
         UserProductListResponse product = createUserProductList();
 
         when(productMapper.findUserProductList(any(PageRequest.class)))
@@ -126,7 +128,7 @@ class ProductServiceTest {
 
         // when
 
-        PageResponse<UserProductListResponse> result = productService.findUserProductList(page, categoryId);
+        PageResponse<UserProductListResponse> result = productService.findUserProductList(page, categoryId, keyword);
 
         // then
 

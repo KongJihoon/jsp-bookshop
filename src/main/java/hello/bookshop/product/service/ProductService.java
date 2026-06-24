@@ -21,10 +21,10 @@ public class ProductService {
     private final ProductMapper productMapper;
 
     @Transactional(readOnly = true)
-    public PageResponse<UserProductListResponse> findUserProductList(Integer page, Long categoryId) {
+    public PageResponse<UserProductListResponse> findUserProductList(Integer page, Long categoryId, String keyword) {
 
 
-        PageRequest pageRequest = new PageRequest(page, 8, categoryId, null, null);
+        PageRequest pageRequest = new PageRequest(page, 8, categoryId, null, keyword);
 
         List<UserProductListResponse> products = productMapper.findUserProductList(pageRequest);
 
