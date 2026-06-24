@@ -53,3 +53,34 @@
         });
     </script>
 </c:if>
+
+<script>
+    function showToast(message, type) {
+        const toastContainer = document.createElement("div");
+
+        toastContainer.className = "toast-container position-fixed top-0 end-0 p-3";
+        toastContainer.style.zIndex = "9999";
+
+        toastContainer.innerHTML =
+            '<div class="toast text-bg-' + type + ' border-0" role="alert">' +
+            '  <div class="d-flex">' +
+            '    <div class="toast-body">' + message + '</div>' +
+            '    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>' +
+            '  </div>' +
+            '</div>';
+
+        document.body.appendChild(toastContainer);
+
+        const toastElement = toastContainer.querySelector(".toast");
+        const toast = new bootstrap.Toast(toastElement, {
+            delay: 2500,
+            autohide: true
+        });
+
+        toast.show();
+
+        toastElement.addEventListener("hidden.bs.toast", function () {
+            toastContainer.remove();
+        });
+    }
+</script>

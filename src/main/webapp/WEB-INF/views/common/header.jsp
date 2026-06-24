@@ -77,7 +77,7 @@
             <div class="col-md-3">
                 <div class="header-user-menu d-flex justify-content-center justify-content-md-end gap-3 small">
                     <a href="${contextPath}/member/mypage" class="header-user-link">마이페이지</a>
-                    <a href="#" class="header-user-link">장바구니</a>
+                    <a href="${contextPath}/cart" class="header-user-link">장바구니</a>
                 </div>
             </div>
         </div>

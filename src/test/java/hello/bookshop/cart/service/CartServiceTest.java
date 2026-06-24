@@ -2,7 +2,10 @@ package hello.bookshop.cart.service;
 
 import hello.bookshop.cart.domain.Cart;
 import hello.bookshop.cart.domain.CartItem;
+import hello.bookshop.cart.dto.response.CartItemResponse;
+import hello.bookshop.cart.dto.response.CartResponse;
 import hello.bookshop.cart.mapper.CartMapper;
+import hello.bookshop.common.exception.member.NotLoginMemberException;
 import hello.bookshop.common.exception.product.StockQuantityExceedException;
 import hello.bookshop.member.domain.Member;
 import hello.bookshop.member.mapper.MemberMapper;
@@ -18,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -186,6 +190,70 @@ class CartServiceTest {
 
     }
 
+    @Test
+    @DisplayName("장바구니 조회 성공 - 상품 목록과 총 금액 반환")
+    void findCart_success() {
+        // given
+
+        Long memberId = 1L;
+        Member member = createMember(memberId);
+
+        CartItemResponse item1 = createCartItemResponse(
+                1L,
+                10L,
+                "자바의 정석",
+                30000,
+                2
+        );
+        CartItemResponse item2 = createCartItemResponse(
+                2L,
+                20L, "스프링 입문",
+                20000,
+                1
+        );
+
+        when(memberMapper.findMemberByIdAndWithdrawnAtIsNull(memberId))
+                .thenReturn(Optional.of(member));
+
+        when(cartMapper.findCartItemsByMemberId(memberId))
+                .thenReturn(List.of(item1, item2));
+        // when
+
+        CartResponse result = cartService.findCart(memberId);
+
+        // then
+
+        assertThat(result.getItems()).hasSize(2);
+        assertThat(result.getTotalPrice()).isEqualTo(80000);
+
+        assertThat(result.getItems().get(0).getProductName()).isEqualTo("자바의 정석");
+        assertThat(result.getItems().get(1).getProductName()).isEqualTo("스프링 입문");
+
+        verify(memberMapper).findMemberByIdAndWithdrawnAtIsNull(memberId);
+        verify(cartMapper).findCartItemsByMemberId(memberId);
+    }
+
+    @Test
+    @DisplayName("장바구니 조회 실패 - 회원 존재하지 않음")
+    void findCart_fail_notLoginMember() {
+        // given
+
+        Long memberId = 999L;
+
+        when(memberMapper.findMemberByIdAndWithdrawnAtIsNull(memberId))
+                .thenReturn(Optional.empty());
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> cartService.findCart(memberId))
+                .isInstanceOf(NotLoginMemberException.class)
+                .hasMessage("로그인 후 사용 가능합니다.");
+
+        verify(cartMapper, never()).findCartItemsByMemberId(anyLong());
+
+    }
+
     private Member createMember(Long memberId) {
         Member member = Member.signUp(
                 "test",
@@ -234,6 +302,27 @@ class CartServiceTest {
         ReflectionTestUtils.setField(cartItem, "cartItemId", cartItemId);
 
         return cartItem;
+    }
+
+    private CartItemResponse createCartItemResponse(
+            Long cartItemId,
+            Long productId,
+            String productName,
+            Integer price,
+            Integer quantity
+    ) {
+        CartItemResponse response = new CartItemResponse();
+
+        response.setCartItemId(cartItemId);
+        response.setProductId(productId);
+        response.setProductName(productName);
+        response.setAuthor("저자");
+        response.setPublisher("출판사");
+        response.setPrice(price);
+        response.setQuantity(quantity);
+        response.setImagePath("/upload/book.jpg");
+
+        return response;
     }
 
 }

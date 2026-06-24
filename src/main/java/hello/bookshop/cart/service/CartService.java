@@ -3,7 +3,12 @@ package hello.bookshop.cart.service;
 
 import hello.bookshop.cart.domain.Cart;
 import hello.bookshop.cart.domain.CartItem;
+import hello.bookshop.cart.dto.response.CartItemForUpdateResponse;
+import hello.bookshop.cart.dto.response.CartItemResponse;
+import hello.bookshop.cart.dto.response.CartQuantityUpdateResponse;
+import hello.bookshop.cart.dto.response.CartResponse;
 import hello.bookshop.cart.mapper.CartMapper;
+import hello.bookshop.common.exception.cart.CartItemNotFoundException;
 import hello.bookshop.common.exception.member.NotLoginMemberException;
 import hello.bookshop.common.exception.product.ProductNotFoundException;
 import hello.bookshop.common.exception.product.StockQuantityExceedException;
@@ -16,6 +21,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class CartService {
@@ -25,12 +32,6 @@ public class CartService {
     private final ProductMapper productMapper;
 
     private final CartMapper cartMapper;
-
-    // 세션 로그인 상태 확인 -> 비로그인 유저 로그인 화면으로 리다이렉트
-    // Cart 존재 확인 후 Cart 생성
-    // 상품 존재 확인 -> 서비스 내부 검증도 필요하기 때문에 구현
-    // 재고 확인? Product.quantity -> quantity 매게변수랑 비교 검증?
-    // 검증 통과 시 CartItem save();
 
 
     /**
@@ -58,6 +59,51 @@ public class CartService {
 
     }
 
+    /**
+     * 장바구니 조회 기능
+     */
+    @Transactional(readOnly = true)
+    public CartResponse findCart(Long memberId) {
+
+        memberMapper.findMemberByIdAndWithdrawnAtIsNull(memberId)
+                .orElseThrow(() -> new NotLoginMemberException("로그인 후 사용 가능합니다."));
+
+        List<CartItemResponse> items = cartMapper.findCartItemsByMemberId(memberId);
+
+        return new CartResponse(items);
+    }
+
+    /**
+     * 장바구니 수량 변경
+     */
+    @Transactional
+    public CartQuantityUpdateResponse updateQuantity(Long memberId, Long cartItemId, Integer quantity) {
+        validateQuantity(quantity);
+
+        CartItemForUpdateResponse cartItem = cartMapper.findCartItemForUpdate(memberId, cartItemId)
+                .orElseThrow(() -> new CartItemNotFoundException("장바구니 상품을 찾을 수 없습니다."));
+
+        if (cartItem.getStatus() != ProductStatus.ACTIVE) {
+            throw new ProductNotFoundException("판매 중인 상품이 아닙니다.");
+        }
+
+        if (cartItem.getStockQuantity() < quantity) {
+            throw new StockQuantityExceedException("재고 수량을 초과하였습니다.");
+        }
+
+        int updateCount = cartMapper.updateCartItemQuantity(cartItemId, memberId, quantity);
+
+        if (updateCount == 0) {
+            throw new CartItemNotFoundException("장바구니를 찾을 수 없습니다");
+        }
+
+        return new CartQuantityUpdateResponse(
+                cartItem.getCartItemId(),
+                quantity,
+                cartItem.getPrice()
+        );
+    }
+
     private Cart findOrCreateCart(Long memberId) {
         return cartMapper.findCartByMemberId(memberId)
                 .orElseGet(() -> {
@@ -67,8 +113,8 @@ public class CartService {
                 });
     }
 
-    private void validateQuantity(int quantity) {
-        if (quantity <= 0) {
+    private void validateQuantity(Integer quantity) {
+        if (quantity <= 0 || quantity == null) {
             throw new IllegalArgumentException("수량은 1개 이상이어야 합니다.");
         }
     }
