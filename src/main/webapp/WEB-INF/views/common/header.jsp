@@ -86,23 +86,25 @@
     <!-- 카테고리 -->
     <nav class="category-nav border-top">
         <div class="container">
+
             <ul class="nav justify-content-center flex-nowrap overflow-auto gap-4 py-2">
                 <li class="nav-item">
-                    <a class="nav-link fw-bold fs-5 text-dark" href="#">베스트셀러</a>
+                    <a class="nav-link fw-bold fs-5 ${empty selectedCategoryId ? 'text-primary' : 'text-dark'}" href="${contextPath}/products">전체 도서</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link fw-bold fs-5 text-dark" href="#">신간도서</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link fw-bold fs-5 text-dark" href="#">소설</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link fw-bold fs-5 text-dark" href="#">IT·컴퓨터</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link fw-bold fs-5 text-dark" href="#">자기계발</a>
-                </li>
+
+                <c:forEach var="category" items="${headerCategories}">
+
+                    <li class="nav-item">
+                        <a class="nav-link fw-bold fs-5
+                        ${selectedCategoryId == category.categoryId
+                           ? 'text-primary' : 'text-dark'}"
+                           href="${contextPath}/products?categoryId=${category.categoryId}">${category.categoryName}</a>
+                    </li>
+
+                </c:forEach>
+
             </ul>
+
         </div>
 
     </nav>

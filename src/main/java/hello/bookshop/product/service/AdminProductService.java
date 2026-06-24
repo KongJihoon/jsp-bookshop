@@ -115,6 +115,7 @@ public class AdminProductService {
     /**
      * 도서 수정 기능
      */
+    @Transactional
     public void updateProduct(Long productId, Long updatedBy, ProductUpdateRequest request) {
 
         Member member = memberMapper.findMemberByIdAndWithdrawnAtIsNull(updatedBy)
