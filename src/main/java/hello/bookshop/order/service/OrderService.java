@@ -8,9 +8,7 @@ import hello.bookshop.member.mapper.MemberMapper;
 import hello.bookshop.order.domain.Order;
 import hello.bookshop.order.domain.OrderItem;
 import hello.bookshop.order.dto.request.OrderCreateRequest;
-import hello.bookshop.order.dto.response.OrderCompleteResponse;
-import hello.bookshop.order.dto.response.OrderFormItemResponse;
-import hello.bookshop.order.dto.response.OrderFormResponse;
+import hello.bookshop.order.dto.response.*;
 import hello.bookshop.order.mapper.OrderMapper;
 import hello.bookshop.product.mapper.ProductMapper;
 import lombok.RequiredArgsConstructor;
@@ -96,6 +94,34 @@ public class OrderService {
         }
 
         return new OrderCompleteResponse(order.getOrderId(), order.getTotalPrice());
+    }
+
+    /**
+     * 주문 내역 조회
+     */
+    @Transactional(readOnly = true)
+    public List<OrderListResponse> findMyOrder(Long memberId) {
+        validateLoginMember(memberId);
+
+        return orderMapper.findOrdersByMemberId(memberId);
+    }
+
+    /**
+     * 주문 내역 상세 조회
+     */
+    @Transactional(readOnly = true)
+    public OrderDetailResponse findMyOrderDetail(Long memberId, Long orderId) {
+        OrderDetailResponse orderDetail = orderMapper.findOrderDetailByOrderId(memberId, orderId);
+
+        if (orderDetail == null) {
+            throw new OrderInfoException("주문 내역을 찾을 수 없습니다.");
+        }
+
+        List<OrderDetailItemResponse> items = orderMapper.findOrderDetailItemsByOrderId(orderId);
+
+        orderDetail.setItems(items);
+
+        return orderDetail;
     }
 
     private static void validateStock(List<OrderFormItemResponse> items) {

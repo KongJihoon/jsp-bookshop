@@ -6,6 +6,7 @@ import hello.bookshop.member.dto.request.MemberLoginRequest;
 import hello.bookshop.member.dto.request.MemberSignUpRequest;
 import hello.bookshop.member.dto.request.MemberUpdateRequest;
 import hello.bookshop.member.dto.response.MemberInfoResponse;
+import hello.bookshop.member.dto.response.MyPageHomeResponse;
 import hello.bookshop.member.dto.response.SessionMemberDto;
 import hello.bookshop.member.service.MemberService;
 import hello.bookshop.member.validator.MemberValidator;
@@ -146,6 +147,8 @@ public class MemberController {
 
     @GetMapping("/mypage")
     public String myPage() {
+
+
 
         return "member/mypage";
 

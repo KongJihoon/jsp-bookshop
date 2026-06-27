@@ -295,24 +295,34 @@
         selectedAllCheckBox.checked = currentCheckBoxes.length > 0 && checkedCount === currentCheckBoxes.length;
     }
 
+    function handleCartApiResponse(response, data, fallbackMessage) {
+        if (response.status === 401 && data.code === "NOT_LOGIN") {
+            window.location.href = data.redirectUrl || "${contextPath}/member/login";
+            return null;
+        }
+
+        if (!response.ok) {
+            throw new Error(data.message || fallbackMessage);
+        }
+
+        return data;
+    }
+
     function updateQuantityOnServer(card, quantity) {
         const cartItemId = card.dataset.cartItemId;
 
         return fetch("${contextPath}/cart/items/" + cartItemId + "/quantity", {
             method: "POST",
             headers: {
-                "Content-Type" : "application/json"
+                "Content-Type" : "application/json",
+                "X-Requested-With": "XMLHttpRequest"
             },
             body: JSON.stringify({
                 quantity: quantity
             })
         }).then(function (response) {
             return response.json().then(function (data) {
-                if (!response.ok) {
-                    throw new Error(data.message || "수량 변경에 실패했습니다.");
-                }
-
-                return data;
+                return handleCartApiResponse(response, data, "수량 변경에 실패했습니다.");
             })
         })
 
@@ -350,6 +360,10 @@
 
            updateQuantityOnServer(card, nextQuantity)
                .then(function (result) {
+                   if (result === null) {
+                       return;
+                   }
+
                    quantityInput.value = result.quantity;
 
                    updateItemTotalPrice(card);
@@ -366,6 +380,10 @@
 
             updateQuantityOnServer(card, nextQuantity)
                 .then(function (result) {
+                    if (result === null) {
+                        return;
+                    }
+
                     quantityInput.value = result.quantity;
 
                     updateItemTotalPrice(card);
@@ -385,13 +403,13 @@
         const cartItemId = card.dataset.cartItemId;
 
         return fetch("${contextPath}/cart/items/" + cartItemId + "/delete", {
-            method: "POST"
+            method: "POST",
+            headers: {
+                "X-Requested-With": "XMLHttpRequest"
+            }
         }).then(function (response) {
             return response.json().then(function (data) {
-                if (!response.ok) {
-                    throw new Error(data.message || "장바구니 상품 삭제에 실패하였습니다.");
-                }
-                return data;
+                return handleCartApiResponse(response, data, "장바구니 상품 삭제에 실패하였습니다.");
             })
         })
     }
@@ -421,6 +439,10 @@
 
         deleteCartItemOnServer(card)
             .then(function (data) {
+                if (data === null) {
+                    return;
+                }
+
                 removeCartItemCard(card);
                 showToast(data.message, "success");
             }).catch(function (error) {

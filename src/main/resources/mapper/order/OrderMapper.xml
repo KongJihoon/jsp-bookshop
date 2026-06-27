@@ -109,5 +109,114 @@
 
     </delete>
 
+    <select id="findOrdersByMemberId"
+            parameterType="long"
+            resultType="hello.bookshop.order.dto.response.OrderListResponse">
+        SELECT
+            o.order_id,
+            o.order_status,
+            o.total_price,
+            o.ordered_at,
+            oi.product_name AS representative_product_name,
+            pi.image_path AS representative_image_path,
+            item_count.total_item_count
+        FROM orders o
+        JOIN (
+            SELECT
+                order_id,
+                MIN(order_item_id) AS representative_order_item_id,
+                COUNT(*) AS total_item_count
+            FROM order_item
+            GROUP BY order_id
+        ) item_count
+            ON o.order_id = item_count.order_id
+        JOIN order_item oi
+            ON item_count.representative_order_item_id = oi.order_item_id
+        LEFT JOIN product_image pi
+            ON oi.product_id = pi.product_id
+        AND pi.image_type = 'THUMBNAIL'
+        WHERE o.member_id = #{memberId}
+        ORDER BY o.ordered_at DESC
+
+    </select>
+
+    <select id="findOrderDetailByOrderId"
+            resultType="hello.bookshop.order.dto.response.OrderDetailResponse">
+
+        SELECT
+            order_id,
+            order_status,
+            total_price,
+            ordered_at,
+            receiver_name,
+            receiver_phone,
+            zipcode,
+            address,
+            address_detail
+        FROM orders
+        WHERE member_id = #{memberId}
+        AND order_id = #{orderId}
+
+    </select>
+
+    <select id="findOrderDetailItemsByOrderId"
+            parameterType="long"
+            resultType="hello.bookshop.order.dto.response.OrderDetailItemResponse">
+
+        SELECT
+            oi.product_id,
+            oi.product_name,
+            pi.image_path,
+            oi.price,
+            oi.quantity,
+            oi.item_total_price
+        FROM order_item oi
+        LEFT JOIN product_image pi
+            ON oi.product_id = pi.product_id
+            AND pi.image_type = 'THUMBNAIL'
+        WHERE oi.order_id = #{orderId}
+        ORDER BY oi.order_item_id ASC
+
+    </select>
+    
+    <select id="countOrdersByMemberId"
+            parameterType="long"
+            resultType="int">
+        SELECT COUNT(*)
+        FROM orders
+        WHERE member_id = #{memberId}
+    </select>
+
+    <select id="findRecentOrdersByMemberId"
+            parameterType="long"
+            resultType="hello.bookshop.order.dto.response.OrderListResponse">
+        SELECT
+        o.order_id,
+        o.order_status,
+        o.total_price,
+        o.ordered_at,
+        oi.product_name AS representative_product_name,
+        pi.image_path AS representative_image_path,
+        item_count.total_item_count
+        FROM orders o
+        JOIN (
+        SELECT
+        order_id,
+        MIN(order_item_id) AS representative_order_item_id,
+        COUNT(*) AS total_item_count
+        FROM order_item
+        GROUP BY order_id
+        ) item_count
+        ON o.order_id = item_count.order_id
+        JOIN order_item oi
+        ON item_count.representative_order_item_id = oi.order_item_id
+        LEFT JOIN product_image pi
+        ON oi.product_id = pi.product_id
+        AND pi.image_type = 'THUMBNAIL'
+        WHERE o.member_id = #{memberId}
+        ORDER BY o.ordered_at DESC
+        LIMIT 3
+    </select>
+
 
 </mapper>

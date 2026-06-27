@@ -11,7 +11,6 @@ import hello.bookshop.common.exception.ErrorResponse;
 import hello.bookshop.common.session.SessionConst;
 import hello.bookshop.member.dto.response.SessionMemberDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,14 +31,9 @@ public class CartController {
     @PostMapping("/items")
     public String addCartItem(
             @Validated @ModelAttribute CartAddRequest request,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) SessionMemberDto loginMember,
+            @SessionAttribute(SessionConst.LOGIN_MEMBER) SessionMemberDto loginMember,
             RedirectAttributes redirectAttributes
             ) {
-
-        if (loginMember == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "로그인 후 사용 가능합니다.");
-            return "redirect:/member/login";
-        }
 
         cartService.addCartItem(loginMember.getMemberId(), request.getProductId(), request.getQuantity());
 
@@ -53,17 +47,9 @@ public class CartController {
      */
     @GetMapping
     public String cartList(
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) SessionMemberDto loginMember,
-            RedirectAttributes redirectAttributes,
+            @SessionAttribute(SessionConst.LOGIN_MEMBER) SessionMemberDto loginMember,
             Model model
     ) {
-
-        if (loginMember == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "로그인 후 사용 가능합니다.");
-            return "redirect:/member/login";
-        }
-
-
         CartResponse cart = cartService.findCart(loginMember.getMemberId());
 
         model.addAttribute("cart", cart);
@@ -79,14 +65,8 @@ public class CartController {
     public ResponseEntity<?> updateQuantity(
             @PathVariable Long cartItemId,
             @RequestBody CartQuantityUpdateRequest request,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) SessionMemberDto loginMember
+            @SessionAttribute(SessionConst.LOGIN_MEMBER) SessionMemberDto loginMember
             ) {
-
-        if (loginMember == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new ErrorResponse("NOT_LOGIN", "로그인 후 사용 가능합니다."));
-        }
-
         try {
             CartQuantityUpdateResponse response = cartService.updateQuantity(loginMember.getMemberId(), cartItemId, request.getQuantity());
 
@@ -110,12 +90,7 @@ public class CartController {
     @ResponseBody
     public ResponseEntity<?> deleteCartItem(
             @PathVariable Long cartItemId,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) SessionMemberDto loginMember) {
-
-        if (loginMember == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new ErrorResponse("NOT_LOGIN", "로그인 후 사용 가능합니다."));
-        }
+            @SessionAttribute(SessionConst.LOGIN_MEMBER) SessionMemberDto loginMember) {
 
         try {
             CartItemDeleteResponse response = cartService.deleteCartItem(loginMember.getMemberId(), cartItemId);

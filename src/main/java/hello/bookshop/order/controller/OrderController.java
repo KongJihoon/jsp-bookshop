@@ -6,7 +6,9 @@ import hello.bookshop.member.dto.response.SessionMemberDto;
 import hello.bookshop.order.dto.request.CartOrderFormRequest;
 import hello.bookshop.order.dto.request.OrderCreateRequest;
 import hello.bookshop.order.dto.response.OrderCompleteResponse;
+import hello.bookshop.order.dto.response.OrderDetailResponse;
 import hello.bookshop.order.dto.response.OrderFormResponse;
+import hello.bookshop.order.dto.response.OrderListResponse;
 import hello.bookshop.order.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -15,6 +17,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -29,17 +33,10 @@ public class OrderController {
     @PostMapping("/form/cart")
     public String cartOrderForm(
             @ModelAttribute CartOrderFormRequest request,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) SessionMemberDto loginMember,
+            @SessionAttribute(SessionConst.LOGIN_MEMBER) SessionMemberDto loginMember,
             RedirectAttributes redirectAttributes,
             Model model
             ) {
-
-        if (loginMember == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "로그인 후 사용 가능합니다.");
-            return "redirect:/member/login";
-        }
-
-
         try {
 
             OrderFormResponse orderForm = orderService.getCartOrderForm(loginMember.getMemberId(), request.getCartItemIds());
@@ -63,16 +60,10 @@ public class OrderController {
     public String createOrder(
             @Validated @ModelAttribute OrderCreateRequest request,
             BindingResult bindingResult,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) SessionMemberDto loginMember,
+            @SessionAttribute(SessionConst.LOGIN_MEMBER) SessionMemberDto loginMember,
             RedirectAttributes redirectAttributes,
             Model model
             ) {
-
-        if (loginMember == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "로그인 후 사용 가능합니다.");
-            return "redirect:/member/login";
-        }
-
         if (bindingResult.hasErrors()) {
             OrderFormResponse orderForm = orderService.getCartOrderForm(loginMember.getMemberId(), request.getCartItemIds());
 
@@ -109,5 +100,41 @@ public class OrderController {
         return "order/complete";
     }
 
-}
 
+    @GetMapping
+    public String orderList(
+            @SessionAttribute(SessionConst.LOGIN_MEMBER) SessionMemberDto loginMember,
+            Model model
+    ) {
+        List<OrderListResponse> orders = orderService.findMyOrder(loginMember.getMemberId());
+
+        model.addAttribute("orders", orders);
+
+        return "order/list";
+
+    }
+
+    @GetMapping("/{orderId}")
+    public String orderDetail(
+            @PathVariable Long orderId,
+            @SessionAttribute(SessionConst.LOGIN_MEMBER) SessionMemberDto loginMember,
+            RedirectAttributes redirectAttributes,
+            Model model
+    ) {
+        try {
+            OrderDetailResponse orderDetail = orderService.findMyOrderDetail(loginMember.getMemberId(), orderId);
+
+            model.addAttribute("order", orderDetail);
+            model.addAttribute("orderItems", orderDetail.getItems());
+
+            return "order/detail";
+
+        } catch (CustomException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+
+            return "redirect:/orders";
+        }
+
+    }
+
+}
