@@ -10,6 +10,8 @@ import hello.bookshop.order.dto.response.OrderDetailResponse;
 import hello.bookshop.order.dto.response.OrderFormResponse;
 import hello.bookshop.order.dto.response.OrderListResponse;
 import hello.bookshop.order.service.OrderService;
+import hello.bookshop.payment.config.TossProperties;
+import hello.bookshop.payment.dto.response.PaymentCheckoutResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,6 +28,8 @@ import java.util.List;
 public class OrderController {
 
     private final OrderService orderService;
+
+    private final TossProperties tossProperties;
 
     /**
      * 상품 주문 폼
@@ -75,9 +79,12 @@ public class OrderController {
         }
 
         try {
-            OrderCompleteResponse response = orderService.createCartOrder(loginMember.getMemberId(), request);
 
-            return "redirect:/orders/" + response.getOrderId() + "/complete";
+            PaymentCheckoutResponse checkout = orderService.createReadyCartOrder(loginMember.getMemberId(), request);
+
+            model.addAttribute("checkout", checkout);
+            model.addAttribute("clientKey", tossProperties.getClientKey());
+            return "payment/checkout";
 
         } catch (CustomException e) {
             OrderFormResponse orderForm = orderService.getCartOrderForm(loginMember.getMemberId(), request.getCartItemIds());

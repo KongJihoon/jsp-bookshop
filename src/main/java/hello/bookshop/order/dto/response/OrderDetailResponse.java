@@ -2,6 +2,7 @@ package hello.bookshop.order.dto.response;
 
 
 import hello.bookshop.order.type.OrderStatus;
+import hello.bookshop.payment.type.PaymentMethod;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,6 +20,8 @@ public class OrderDetailResponse {
     private OrderStatus orderStatus;
 
     private Integer totalPrice;
+
+    private PaymentMethod paymentMethod;
 
     private LocalDateTime orderedAt;
 
@@ -40,6 +43,14 @@ public class OrderDetailResponse {
         }
 
         return orderedAt.format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm"));
+    }
+
+    public String getPaymentMethodDescription() {
+        if (paymentMethod == null) {
+            return "결제 정보 없음";
+        }
+
+        return paymentMethod.getDescription();
     }
 
 }

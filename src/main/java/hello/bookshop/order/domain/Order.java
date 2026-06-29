@@ -38,7 +38,7 @@ public class Order {
     private Order(Long memberId, String receiverName, String receiverPhone, String zipcode, String address, String addressDetail, Integer totalPrice) {
 
         this.memberId = memberId;
-        this.orderStatus = OrderStatus.ORDERED;
+        this.orderStatus = OrderStatus.READY;
         this.receiverName = receiverName;
         this.receiverPhone = receiverPhone;
         this.zipcode = zipcode;

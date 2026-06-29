@@ -35,7 +35,12 @@ public class CartController {
             RedirectAttributes redirectAttributes
             ) {
 
-        cartService.addCartItem(loginMember.getMemberId(), request.getProductId(), request.getQuantity());
+        try {
+            cartService.addCartItem(loginMember.getMemberId(), request.getProductId(), request.getQuantity());
+        } catch (CustomException | IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/products/" + request.getProductId();
+        }
 
         redirectAttributes.addFlashAttribute("successMessage", "장바구니에 상품을 담았습니다.");
 

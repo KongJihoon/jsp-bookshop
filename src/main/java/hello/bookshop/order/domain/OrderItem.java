@@ -17,6 +17,8 @@ public class OrderItem {
 
     private Long productId;
 
+    private Long cartItemId;
+
     private String productName;
 
     private Integer price;
@@ -31,12 +33,14 @@ public class OrderItem {
     private OrderItem(
             Long orderId,
             Long productId,
+            Long cartItemId,
             String productName,
             Integer price,
             Integer quantity
     ) {
         this.orderId = orderId;
         this.productId = productId;
+        this.cartItemId = cartItemId;
         this.productName = productName;
         this.price = price;
         this.quantity = quantity;
@@ -46,6 +50,7 @@ public class OrderItem {
     public static OrderItem create(
             Long orderId,
             Long productId,
+            Long cartItemId,
             String productName,
             Integer price,
             Integer quantity
@@ -53,6 +58,7 @@ public class OrderItem {
         return OrderItem.builder()
                 .orderId(orderId)
                 .productId(productId)
+                .cartItemId(cartItemId)
                 .productName(productName)
                 .price(price)
                 .quantity(quantity)

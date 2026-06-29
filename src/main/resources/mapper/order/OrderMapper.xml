@@ -67,6 +67,7 @@
             keyProperty="orderItemId">
         INSERT INTO order_item (
             order_id,
+            cart_item_id,
             product_id,
             product_name,
             price,
@@ -74,6 +75,7 @@
             item_total_price
         ) VALUES (
             #{orderId},
+            #{cartItemId},
             #{productId},
             #{productName},
             #{price},
@@ -144,18 +146,21 @@
             resultType="hello.bookshop.order.dto.response.OrderDetailResponse">
 
         SELECT
-            order_id,
-            order_status,
-            total_price,
-            ordered_at,
-            receiver_name,
-            receiver_phone,
-            zipcode,
-            address,
-            address_detail
-        FROM orders
-        WHERE member_id = #{memberId}
-        AND order_id = #{orderId}
+            o.order_id,
+            o.order_status,
+            o.total_price,
+            p.payment_method,
+            o.ordered_at,
+            o.receiver_name,
+            o.receiver_phone,
+            o.zipcode,
+            o.address,
+            o.address_detail
+        FROM orders o
+        LEFT JOIN payment p
+            ON o.order_id = p.order_id
+        WHERE o.member_id = #{memberId}
+        AND o.order_id = #{orderId}
 
     </select>
 
@@ -217,6 +222,44 @@
         ORDER BY o.ordered_at DESC
         LIMIT 3
     </select>
+    
+    <!-- tossPayment -->
+    
+    <select id="findOrderItemsForPayment"
+            parameterType="long"
+            resultType="hello.bookshop.order.dto.response.OrderFormItemResponse">
+        SELECT
+            oi.cart_item_id,
+            oi.product_id,
+            oi.product_name,
+            oi.price,
+            oi.quantity,
+            oi.item_total_price,
+            p.stock_quantity
+        FROM order_item oi
+        JOIN product p
+            ON oi.product_id = p.product_id
+        WHERE oi.order_id = #{orderId}
+        
+        
+    </select>
+    
+    <update id="updateOrderStatus">
+        UPDATE orders
+        SET order_status = #{orderStatus}
+        WHERE order_id = #{orderId}
+    </update>
+    
+    <delete id="deletePaidOrderCartItems">
+        DELETE ci
+        FROM cart_item ci
+        JOIN cart c
+            ON ci.cart_id = c.cart_id
+        JOIN order_item oi
+            ON ci.cart_item_id = oi.cart_item_id
+        WHERE c.member_id = #{memberId}
+        AND oi.order_id = #{orderId}
+    </delete>
 
 
 </mapper>

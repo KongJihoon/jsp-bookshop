@@ -75,7 +75,7 @@ public class OrderConcurrencyTest {
                     readyLatch.countDown();
                     startLatch.await();
 
-                    orderService.createCartOrder(memberId, request);
+                    orderService.createReadyCartOrder(memberId, request);
                     successCount.incrementAndGet();
                 } catch (Exception e) {
                     failCount.incrementAndGet();
