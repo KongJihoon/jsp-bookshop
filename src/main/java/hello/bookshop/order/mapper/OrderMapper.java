@@ -6,6 +6,7 @@ import hello.bookshop.order.dto.response.OrderDetailItemResponse;
 import hello.bookshop.order.dto.response.OrderDetailResponse;
 import hello.bookshop.order.dto.response.OrderFormItemResponse;
 import hello.bookshop.order.dto.response.OrderListResponse;
+import hello.bookshop.order.type.OrderStatus;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -44,4 +45,18 @@ public interface OrderMapper {
     int countOrdersByMemberId(Long memberId);
 
     List<OrderListResponse> findRecentOrdersByMemberId(Long memberId);
+
+    // tossPayment
+
+    List<OrderFormItemResponse> findOrderItemsForPayment(Long orderId);
+
+    void updateOrderStatus(
+            @Param("orderId") Long orderId,
+            @Param("orderStatus") OrderStatus orderStatus
+    );
+
+    int deletePaidOrderCartItems(
+            @Param("memberId") Long memberId,
+            @Param("orderId") Long orderId
+    );
 }

@@ -132,7 +132,9 @@
 
                     <div class="payment-summary-item">
                         <div class="payment-summary-label">결제 수단</div>
-                        <div class="payment-summary-price">일반 주문</div>
+                        <div class="payment-summary-price">
+                            ${order.paymentMethodDescription}
+                        </div>
                     </div>
 
                     <div class="payment-summary-item">

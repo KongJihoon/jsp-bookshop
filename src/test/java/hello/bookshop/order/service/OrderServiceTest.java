@@ -11,6 +11,7 @@ import hello.bookshop.order.dto.request.OrderCreateRequest;
 import hello.bookshop.order.dto.response.*;
 import hello.bookshop.order.mapper.OrderMapper;
 import hello.bookshop.order.type.OrderStatus;
+import hello.bookshop.payment.dto.response.PaymentCheckoutResponse;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -129,12 +130,11 @@ class OrderServiceTest {
                 .thenReturn(2);
 
         // when
-        OrderCompleteResponse result = orderService.createCartOrder(memberId, request);
+        PaymentCheckoutResponse result = orderService.createReadyCartOrder(memberId, request);
 
         // then
 
         assertThat(result.getOrderId()).isEqualTo(1000L);
-        assertThat(result.getTotalPrice()).isEqualTo(80000);
         ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
 
         verify(orderMapper).saveOrder(orderCaptor.capture());
@@ -200,7 +200,7 @@ class OrderServiceTest {
 
         // then
 
-        assertThatThrownBy(() -> orderService.createCartOrder(memberId, request))
+        assertThatThrownBy(() -> orderService.createReadyCartOrder(memberId, request))
                 .isInstanceOf(StockQuantityExceedException.class)
                 .hasMessage("재고 수량을 초과한 상품이 있습니다.");
 
@@ -221,7 +221,7 @@ class OrderServiceTest {
 
         OrderListResponse firstOrder = new OrderListResponse();
         firstOrder.setOrderId(10L);
-        firstOrder.setOrderStatus(OrderStatus.ORDERED);
+        firstOrder.setOrderStatus(OrderStatus.READY);
         firstOrder.setTotalPrice(50000);
         firstOrder.setOrderedAt(LocalDateTime.now());
         firstOrder.setRepresentativeProductName("자바의 정석");
@@ -229,7 +229,7 @@ class OrderServiceTest {
 
         OrderListResponse secondOrder = new OrderListResponse();
         secondOrder.setOrderId(20L);
-        secondOrder.setOrderStatus(OrderStatus.ORDERED);
+        secondOrder.setOrderStatus(OrderStatus.READY);
         secondOrder.setTotalPrice(80000);
         secondOrder.setOrderedAt(LocalDateTime.now());
         secondOrder.setRepresentativeProductName("스프링 입문");
@@ -267,7 +267,7 @@ class OrderServiceTest {
         OrderDetailResponse orderDetail = new OrderDetailResponse();
 
         orderDetail.setOrderId(orderId);
-        orderDetail.setOrderStatus(OrderStatus.ORDERED);
+        orderDetail.setOrderStatus(OrderStatus.READY);
         orderDetail.setTotalPrice(80000);
         orderDetail.setOrderedAt(LocalDateTime.now());
         orderDetail.setReceiverName("테스트 수령자");
@@ -294,7 +294,7 @@ class OrderServiceTest {
         // then
 
         assertThat(result.getOrderId()).isEqualTo(orderId);
-        assertThat(result.getOrderStatus()).isEqualTo(OrderStatus.ORDERED);
+        assertThat(result.getOrderStatus()).isEqualTo(OrderStatus.READY);
         assertThat(result.getItems()).hasSize(2);
 
         assertThat(result.getItems().get(0).getProductName()).isEqualTo("자바의 정석");

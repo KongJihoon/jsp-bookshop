@@ -10,6 +10,9 @@ import hello.bookshop.order.domain.OrderItem;
 import hello.bookshop.order.dto.request.OrderCreateRequest;
 import hello.bookshop.order.dto.response.*;
 import hello.bookshop.order.mapper.OrderMapper;
+import hello.bookshop.payment.domain.Payment;
+import hello.bookshop.payment.dto.response.PaymentCheckoutResponse;
+import hello.bookshop.payment.mapper.PaymentMapper;
 import hello.bookshop.product.mapper.ProductMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,6 +27,8 @@ public class OrderService {
     private final MemberMapper memberMapper;
 
     private final OrderMapper orderMapper;
+
+    private final PaymentMapper paymentMapper;
 
 
     /**
@@ -49,7 +54,8 @@ public class OrderService {
      * 주문 생성 기능
      */
     @Transactional
-    public OrderCompleteResponse createCartOrder(Long memberId, OrderCreateRequest request) {
+    public PaymentCheckoutResponse createReadyCartOrder(Long memberId, OrderCreateRequest request) {
+
         validateLoginMember(memberId);
 
         OrderFormResponse orderForm = getCartOrderForm(memberId, request.getCartItemIds());
@@ -68,33 +74,41 @@ public class OrderService {
 
         for (OrderFormItemResponse item : orderForm.getItems()) {
 
-            int stockUpdateCount = orderMapper.decreaseProductStock(item.getProductId(), item.getQuantity());
-
-            if (stockUpdateCount == 0) {
-
-                throw new StockQuantityExceedException("재고 수량을 초과한 상품이 있습니다.");
-            }
-
             OrderItem orderItem = OrderItem.create(
                     order.getOrderId(),
                     item.getProductId(),
+                    item.getCartItemId(),
                     item.getProductName(),
                     item.getPrice(),
                     item.getQuantity()
             );
 
             orderMapper.saveOrderItem(orderItem);
-
         }
 
-        int deletedCount = orderMapper.deleteOrderCartItems(memberId, request.getCartItemIds());
+        String tossOrderId = "BOOKSHOP-" + order.getOrderId();
 
-        if (deletedCount != request.getCartItemIds().size()) {
-            throw new OrderInfoException("주문한 장바구니 상품 삭제에 실패했습니다.");
-        }
+        Payment payment = Payment.ready(
+                order.getOrderId(),
+                tossOrderId,
+                order.getTotalPrice()
+        );
 
-        return new OrderCompleteResponse(order.getOrderId(), order.getTotalPrice());
+        paymentMapper.save(payment);
+
+
+        return new PaymentCheckoutResponse(
+                order.getOrderId(),
+                tossOrderId,
+                order.getTotalPrice(),
+                createOrderName(orderForm.getItems()),
+                "BookShop 회원",
+                "member-" + memberId
+        );
+
     }
+
+
 
     /**
      * 주문 내역 조회
@@ -151,6 +165,14 @@ public class OrderService {
     private void validateLoginMember(Long memberId) {
         memberMapper.findMemberByIdAndWithdrawnAtIsNull(memberId)
                 .orElseThrow(() -> new NotLoginMemberException("로그인 후 사용 가능합니다."));
+    }
+
+    private String createOrderName(List<OrderFormItemResponse> items) {
+        if (items.size() == 1) {
+            return items.get(0).getProductName();
+        }
+
+        return items.get(0).getProductName() + "외" + (items.size() - 1) + "건";
     }
 
 }
