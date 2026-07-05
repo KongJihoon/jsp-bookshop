@@ -261,5 +261,80 @@
         AND oi.order_id = #{orderId}
     </delete>
 
+    <select id="findAdminOrders"
+            parameterType="hello.bookshop.common.dto.PageRequest"
+            resultType="hello.bookshop.order.dto.response.AdminOrderListResponse">
+        SELECT
+            o.order_id,
+            m.name AS member_name,
+            item_count.total_item_count,
+            oi.product_name AS representative_product_name,
+            o.total_price,
+            o.order_status,
+            o.ordered_at
+        FROM
+        orders o
+        JOIN member m
+            ON o.member_id = m.member_id
+        JOIN (
+            SELECT
+                order_id,
+                MIN(order_item_id) AS representative_order_item_id,
+                COUNT(*) AS total_item_count
+            FROM order_item
+            GROUP BY order_id
+        ) item_count
+            ON o.order_id = item_count.order_id
+        JOIN order_item oi
+            ON item_count.representative_order_item_id = oi.order_item_id
+        ORDER BY o.ordered_at DESC
+        LIMIT #{size}
+        OFFSET #{offset}
+
+
+    </select>
+
+    <select id="countAdminOrders"
+            resultType="int">
+        SELECT COUNT(*)
+        FROM orders
+    </select>
+
+    <select id="findAdminOrderDetailsByOrderId"
+            resultType="hello.bookshop.order.dto.response.AdminOrderDetailResponse">
+
+        SELECT
+            o.order_id,
+            m.name AS member_name,
+            m.email AS member_email,
+            o.order_status,
+            o.total_price,
+            o.ordered_at,
+            o.receiver_name,
+            o.receiver_phone,
+            o.zipcode,
+            o.address,
+            o.address_detail
+        FROM orders o
+        JOIN member m
+            ON o.member_id = m.member_id
+        WHERE o.order_id = #{orderId}
+
+    </select>
+
+    <select id="findOrderStatusByOrderId"
+            parameterType="long"
+            resultType="hello.bookshop.order.type.OrderStatus">
+        SELECT order_status
+        FROM orders
+        WHERE order_id = #{orderId}
+    </select>
+
+    <update id="updateAdminOrderStatus">
+        UPDATE orders
+        SET order_status = #{orderStatus}
+        WHERE order_id = #{orderId}
+    </update>
+
 
 </mapper>

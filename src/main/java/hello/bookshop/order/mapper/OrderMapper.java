@@ -1,11 +1,9 @@
 package hello.bookshop.order.mapper;
 
+import hello.bookshop.common.dto.PageRequest;
 import hello.bookshop.order.domain.Order;
 import hello.bookshop.order.domain.OrderItem;
-import hello.bookshop.order.dto.response.OrderDetailItemResponse;
-import hello.bookshop.order.dto.response.OrderDetailResponse;
-import hello.bookshop.order.dto.response.OrderFormItemResponse;
-import hello.bookshop.order.dto.response.OrderListResponse;
+import hello.bookshop.order.dto.response.*;
 import hello.bookshop.order.type.OrderStatus;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -59,4 +57,18 @@ public interface OrderMapper {
             @Param("memberId") Long memberId,
             @Param("orderId") Long orderId
     );
+
+    List<AdminOrderListResponse> findAdminOrders(PageRequest pageRequest);
+
+    int countAdminOrders();
+
+    AdminOrderDetailResponse findAdminOrderDetailsByOrderId(Long orderId);
+
+    OrderStatus findOrderStatusByOrderId(Long orderId);
+
+    int updateAdminOrderStatus(
+            @Param("orderId") Long orderId,
+            @Param("orderStatus") OrderStatus orderStatus
+    );
+
 }

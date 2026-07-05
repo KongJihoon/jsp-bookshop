@@ -32,7 +32,7 @@
             </div>
 
             <div>
-                <button class="btn btn-outline-secondary">목록</button>
+                <a href="${contextPath}/admin/product/list" class="btn btn-outline-secondary">목록</a>
                 <a href="${contextPath}/admin/product/${productId}/edit" class="btn btn-primary">수정</a>
             </div>
 
