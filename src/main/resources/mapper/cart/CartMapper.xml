@@ -131,5 +131,14 @@
 
     </update>
 
+    <delete id="deleteCartItem">
+        DELETE ci
+        FROM cart_item ci
+        JOIN cart c
+            ON ci.cart_id = c.cart_id
+        WHERE ci.cart_item_id = #{cartItemId}
+        AND c.member_id = #{memberId}
+    </delete>
+
 
 </mapper>

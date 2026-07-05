@@ -71,6 +71,29 @@
             if (actionType === "redirect") {
                 location.href = url;
             }
+
+            if (actionType === "fetch-delete") {
+                const deleteEvent = new CustomEvent("confirm:fetch-delete", {
+                    detail: {
+                        triggerButton: button
+                    }
+                });
+                document.dispatchEvent(deleteEvent);
+                const modal = bootstrap.Modal.getInstance(confirmModalElement);
+                modal.hide();
+
+                setTimeout(function () {
+                    document.querySelectorAll(".modal-backdrop").forEach(function (backdrop) {
+                        backdrop.remove();
+                    });
+
+                    document.body.classList.remove("modal-open");
+                    document.body.style.removeProperty("overflow");
+                    document.body.style.removeProperty("padding-right");
+                }, 300);
+
+                return;
+            }
         };
 
     });

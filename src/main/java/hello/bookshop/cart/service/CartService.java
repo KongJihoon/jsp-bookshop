@@ -3,12 +3,10 @@ package hello.bookshop.cart.service;
 
 import hello.bookshop.cart.domain.Cart;
 import hello.bookshop.cart.domain.CartItem;
-import hello.bookshop.cart.dto.response.CartItemForUpdateResponse;
-import hello.bookshop.cart.dto.response.CartItemResponse;
-import hello.bookshop.cart.dto.response.CartQuantityUpdateResponse;
-import hello.bookshop.cart.dto.response.CartResponse;
+import hello.bookshop.cart.dto.response.*;
 import hello.bookshop.cart.mapper.CartMapper;
 import hello.bookshop.common.exception.cart.CartItemNotFoundException;
+import hello.bookshop.common.exception.member.MemberNotFoundException;
 import hello.bookshop.common.exception.member.NotLoginMemberException;
 import hello.bookshop.common.exception.product.ProductNotFoundException;
 import hello.bookshop.common.exception.product.StockQuantityExceedException;
@@ -104,6 +102,26 @@ public class CartService {
         );
     }
 
+    /**
+     * 장바구니 상품 삭제 기능
+     */
+    @Transactional
+    public CartItemDeleteResponse deleteCartItem(Long memberId, Long cartItemId) {
+
+        Member member = memberMapper.findMemberByIdAndWithdrawnAtIsNull(memberId)
+                .orElseThrow(MemberNotFoundException::new);
+
+        int deletedCount = cartMapper.deleteCartItem(cartItemId, member.getMemberId());
+
+        if (deletedCount == 0) {
+            throw new CartItemNotFoundException("장바구니 상품을 찾을 수 없습니다.");
+        }
+
+        return new CartItemDeleteResponse(cartItemId, "장바구니 상품이 삭제되었습니다.");
+
+
+    }
+
     private Cart findOrCreateCart(Long memberId) {
         return cartMapper.findCartByMemberId(memberId)
                 .orElseGet(() -> {
@@ -114,7 +132,7 @@ public class CartService {
     }
 
     private void validateQuantity(Integer quantity) {
-        if (quantity <= 0 || quantity == null) {
+        if (quantity == null || quantity <= 0) {
             throw new IllegalArgumentException("수량은 1개 이상이어야 합니다.");
         }
     }
