@@ -14,7 +14,15 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
         HttpSession session = request.getSession(false);
 
         if (session == null || session.getAttribute(SessionConst.LOGIN_MEMBER) == null) {
-            response.sendRedirect("/member/login");
+            if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write("{\"code\":\"NOT_LOGIN\",\"message\":\"로그인 후 사용 가능합니다.\",\"redirectUrl\":\""
+                        + request.getContextPath() + "/member/login\"}");
+                return false;
+            }
+
+            response.sendRedirect(request.getContextPath() + "/member/login");
             return false;
         }
 

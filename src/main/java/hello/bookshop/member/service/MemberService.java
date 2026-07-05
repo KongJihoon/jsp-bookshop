@@ -1,18 +1,24 @@
 package hello.bookshop.member.service;
 
+import hello.bookshop.cart.mapper.CartMapper;
 import hello.bookshop.common.exception.member.DuplicateMemberException;
 import hello.bookshop.common.exception.member.MemberLoginFailedException;
 import hello.bookshop.common.exception.member.MemberNotFoundException;
 import hello.bookshop.member.domain.Member;
 import hello.bookshop.member.dto.response.MemberInfoResponse;
 import hello.bookshop.member.dto.request.MemberUpdateRequest;
+import hello.bookshop.member.dto.response.MyPageHomeResponse;
 import hello.bookshop.member.dto.response.SessionMemberDto;
 import hello.bookshop.member.dto.request.MemberSignUpRequest;
 import hello.bookshop.member.mapper.MemberMapper;
+import hello.bookshop.order.dto.response.OrderListResponse;
+import hello.bookshop.order.mapper.OrderMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +27,8 @@ public class MemberService {
     private final MemberMapper memberMapper;
 
     private final PasswordEncoder passwordEncoder;
+    private final OrderMapper orderMapper;
+    private final CartMapper cartMapper;
 
     /**
      * 유저 회원가입
@@ -107,6 +115,19 @@ public class MemberService {
 
         memberMapper.update(member);
 
+    }
+
+    public MyPageHomeResponse getMyPageHome(Long memberId) {
+        int recentOrderCount = orderMapper.countOrdersByMemberId(memberId);
+        int cartItemCount = cartMapper.countCartItemsByMemberId(memberId);
+
+        List<OrderListResponse> recentOrders = orderMapper.findRecentOrdersByMemberId(memberId);
+
+        return new MyPageHomeResponse(
+                recentOrderCount,
+                cartItemCount,
+                recentOrders
+        );
     }
 
 

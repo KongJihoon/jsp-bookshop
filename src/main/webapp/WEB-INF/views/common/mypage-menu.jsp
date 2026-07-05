@@ -17,11 +17,29 @@
 
     <div class="summary-list">
         <div class="summary-item">
-            <strong>0건</strong>
+            <strong>
+                <c:choose>
+                    <c:when test="${not empty myPageHome}">
+                        ${myPageHome.recentOrderCount}건
+                    </c:when>
+                    <c:otherwise>
+                        0건
+                    </c:otherwise>
+                </c:choose>
+            </strong>
             <span>최근 주문</span>
         </div>
         <div class="summary-item">
-            <strong>0개</strong>
+            <strong>
+                <c:choose>
+                    <c:when test="${not empty myPageHome}">
+                        ${myPageHome.cartItemCount}개
+                    </c:when>
+                    <c:otherwise>
+                        0개
+                    </c:otherwise>
+                </c:choose>
+            </strong>
             <span>장바구니</span>
         </div>
     </div>

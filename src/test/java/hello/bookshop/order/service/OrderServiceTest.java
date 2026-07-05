@@ -8,10 +8,9 @@ import hello.bookshop.member.mapper.MemberMapper;
 import hello.bookshop.order.domain.Order;
 import hello.bookshop.order.domain.OrderItem;
 import hello.bookshop.order.dto.request.OrderCreateRequest;
-import hello.bookshop.order.dto.response.OrderCompleteResponse;
-import hello.bookshop.order.dto.response.OrderFormItemResponse;
-import hello.bookshop.order.dto.response.OrderFormResponse;
+import hello.bookshop.order.dto.response.*;
 import hello.bookshop.order.mapper.OrderMapper;
+import hello.bookshop.order.type.OrderStatus;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,6 +22,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -211,6 +211,124 @@ class OrderServiceTest {
 
     }
 
+    @Test
+    @DisplayName("회원 주문 목록 조회")
+    void findMyOrder_success() {
+        // given
+
+        Long memberId = 1L;
+
+
+        OrderListResponse firstOrder = new OrderListResponse();
+        firstOrder.setOrderId(10L);
+        firstOrder.setOrderStatus(OrderStatus.ORDERED);
+        firstOrder.setTotalPrice(50000);
+        firstOrder.setOrderedAt(LocalDateTime.now());
+        firstOrder.setRepresentativeProductName("자바의 정석");
+        firstOrder.setTotalItemCount(1);
+
+        OrderListResponse secondOrder = new OrderListResponse();
+        secondOrder.setOrderId(20L);
+        secondOrder.setOrderStatus(OrderStatus.ORDERED);
+        secondOrder.setTotalPrice(80000);
+        secondOrder.setOrderedAt(LocalDateTime.now());
+        secondOrder.setRepresentativeProductName("스프링 입문");
+        secondOrder.setTotalItemCount(2);
+
+        givenLoginMember(memberId);
+
+        when(orderMapper.findOrdersByMemberId(memberId))
+                .thenReturn(List.of(firstOrder, secondOrder));
+
+        // when
+
+        List<OrderListResponse> result = orderService.findMyOrder(memberId);
+
+        // then
+
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).getDisplayProductName()).isEqualTo("자바의 정석");
+        assertThat(result.get(1).getDisplayProductName()).isEqualTo("스프링 입문 외 1권");
+
+        verify(memberMapper).findMemberByIdAndWithdrawnAtIsNull(memberId);
+        verify(orderMapper).findOrdersByMemberId(memberId);
+
+    }
+
+    @Test
+    @DisplayName("주문 내역 상세 조회")
+    void findMyOrderDetail_success() {
+        // given
+
+        Long memberId = 1L;
+
+        Long orderId = 10L;
+
+        OrderDetailResponse orderDetail = new OrderDetailResponse();
+
+        orderDetail.setOrderId(orderId);
+        orderDetail.setOrderStatus(OrderStatus.ORDERED);
+        orderDetail.setTotalPrice(80000);
+        orderDetail.setOrderedAt(LocalDateTime.now());
+        orderDetail.setReceiverName("테스트 수령자");
+        orderDetail.setReceiverPhone("010-1234-5678");
+        orderDetail.setZipcode("23453");
+        orderDetail.setAddress("테스트 주소");
+        orderDetail.setAddressDetail("테스트 상세 주소");
+
+        OrderDetailItemResponse firstOrder = createOrderDetailItem(10L, "자바의 정석", 30000, 2);
+
+        OrderDetailItemResponse secondOrder = createOrderDetailItem(20L, "스프링 입문", 20000, 1);
+
+        when(orderMapper.findOrderDetailByOrderId(memberId, orderId))
+                .thenReturn(orderDetail);
+
+        when(orderMapper.findOrderDetailItemsByOrderId(orderId))
+                .thenReturn(List.of(firstOrder, secondOrder));
+
+
+        // when
+
+        OrderDetailResponse result = orderService.findMyOrderDetail(memberId, orderId);
+
+        // then
+
+        assertThat(result.getOrderId()).isEqualTo(orderId);
+        assertThat(result.getOrderStatus()).isEqualTo(OrderStatus.ORDERED);
+        assertThat(result.getItems()).hasSize(2);
+
+        assertThat(result.getItems().get(0).getProductName()).isEqualTo("자바의 정석");
+
+        assertThat(result.getItems().get(0).getItemTotalPrice()).isEqualTo(60000);
+
+        verify(orderMapper).findOrderDetailByOrderId(memberId, orderId);
+        verify(orderMapper).findOrderDetailItemsByOrderId(orderId);
+
+
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 주문 예외 발생")
+    void findMyOrderDetail_fail_orderNotFound() {
+        // given
+        Long memberId = 1L;
+
+        Long orderId = 100L;
+
+        when(orderMapper.findOrderDetailByOrderId(memberId, orderId))
+                .thenReturn(null);
+
+        // when
+
+        // then
+
+        assertThatThrownBy(() -> orderService.findMyOrderDetail(memberId, orderId))
+                .isInstanceOf(OrderInfoException.class)
+                .hasMessage("주문 내역을 찾을 수 없습니다.");
+
+        verify(orderMapper).findOrderDetailByOrderId(memberId, orderId);
+        verify(orderMapper, never()).findOrderDetailItemsByOrderId(orderId);
+    }
 
     private void givenLoginMember(Long memberId) {
 
@@ -262,5 +380,21 @@ class OrderServiceTest {
         request.setAddressDetail("101호");
         return request;
     }
+
+    private OrderDetailItemResponse createOrderDetailItem(Long productId, String productName, Integer price, Integer quantity) {
+
+        OrderDetailItemResponse items = new OrderDetailItemResponse();
+        items.setProductId(productId);
+        items.setProductName(productName);
+        items.setImagePath("/upload/" + productName + ".jpg");
+        items.setPrice(price);
+        items.setQuantity(quantity);
+        items.setItemTotalPrice(price * quantity);
+
+
+        return items;
+    }
+
+
 
 }

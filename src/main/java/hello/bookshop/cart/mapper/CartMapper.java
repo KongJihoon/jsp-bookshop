@@ -47,4 +47,7 @@ public interface CartMapper {
             @Param("cartItemId") Long cartItemId,
             @Param("memberId") Long memberId);
 
+
+    int countCartItemsByMemberId(Long memberId);
+
 }
