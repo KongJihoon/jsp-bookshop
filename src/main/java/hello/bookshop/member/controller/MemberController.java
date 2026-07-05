@@ -109,9 +109,6 @@ public class MemberController {
 
         SessionMemberDto sessionMemberDto = memberService.loginMember(request.getLoginId(), request.getPassword());
 
-        System.out.println(sessionMemberDto.getMemberId());
-
-
         HttpSession session = httpRequest.getSession(true);
 
         session.setAttribute(SessionConst.LOGIN_MEMBER, sessionMemberDto);

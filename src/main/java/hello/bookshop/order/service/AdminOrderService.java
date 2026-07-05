@@ -61,7 +61,7 @@ public class AdminOrderService {
             throw new OrderInfoException("주문 내역을 찾을 수 없습니다.");
         }
 
-        if (!currentStatus.canChangStatus(nextStatus)) {
+        if (!currentStatus.canChangeStatus(nextStatus)) {
             throw new OrderInfoException("변경할 수 없는 주문 상태입니다.");
         }
 

@@ -351,16 +351,6 @@ class MemberServiceTest {
     }
 
 
-    @Test
-    void encodePassword() {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-
-        String rawPassword = "admin@123";
-        String encodedPassword = encoder.encode(rawPassword);
-
-        System.out.println(encodedPassword);
-    }
-
     private MemberSignUpRequest createSignupRequest() {
 
         return MemberSignUpRequest.builder()

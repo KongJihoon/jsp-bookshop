@@ -138,6 +138,7 @@
             ON oi.product_id = pi.product_id
         AND pi.image_type = 'THUMBNAIL'
         WHERE o.member_id = #{memberId}
+        AND o.order_status NOT IN ('READY', 'FAILED')
         ORDER BY o.ordered_at DESC
 
     </select>
@@ -161,6 +162,7 @@
             ON o.order_id = p.order_id
         WHERE o.member_id = #{memberId}
         AND o.order_id = #{orderId}
+        AND o.order_status NOT IN ('READY', 'FAILED')
 
     </select>
 
@@ -190,6 +192,7 @@
         SELECT COUNT(*)
         FROM orders
         WHERE member_id = #{memberId}
+        AND order_status NOT IN ('READY', 'FAILED')
     </select>
 
     <select id="findRecentOrdersByMemberId"
@@ -219,6 +222,7 @@
         ON oi.product_id = pi.product_id
         AND pi.image_type = 'THUMBNAIL'
         WHERE o.member_id = #{memberId}
+        AND o.order_status NOT IN ('READY', 'FAILED')
         ORDER BY o.ordered_at DESC
         LIMIT 3
     </select>
