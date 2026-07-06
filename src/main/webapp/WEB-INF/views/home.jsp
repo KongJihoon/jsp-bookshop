@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <c:set var="contextPath" value="${pageContext.request.contextPath}"/>
 
 <!DOCTYPE html>
@@ -19,15 +20,49 @@
 
 
 <main class="main-content py-5 bg-light">
-    <!-- 메인 베너 -->
+    <!-- 메인 배너 -->
     <section class="bg-white py-4 border-bottom">
         <div class="container">
             <a href="#latestBooks" class="d-block text-decoration-none">
                 <img src="${contextPath}/images/main-banner.jpg"
-                    alt="BookShop 신규 도서 배너"
-                    class="img-fluid rounded-4 shadow-sm w-100"
-                    style="max-height: 180px; object-fit: cover;">
+                     alt="BookShop 신규 도서 배너"
+                     class="img-fluid rounded-4 shadow-sm w-100"
+                     style="max-height: 180px; object-fit: cover;">
             </a>
+        </div>
+    </section>
+
+    <!-- 서비스 소개 -->
+    <section class="py-5 bg-white border-bottom">
+        <div class="container">
+            <div class="row g-4 text-center">
+                <div class="col-md-4">
+                    <div class="p-4 border rounded-4 h-100">
+                        <h5 class="fw-bold mb-2">개발자를 위한 도서</h5>
+                        <p class="text-muted mb-0">
+                            IT, 자기계발, 신간 도서를 한 곳에서 확인할 수 있습니다.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="p-4 border rounded-4 h-100">
+                        <h5 class="fw-bold mb-2">장바구니와 주문</h5>
+                        <p class="text-muted mb-0">
+                            원하는 도서를 담고 주문과 결제까지 이어지는 쇼핑 흐름을 제공합니다.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="p-4 border rounded-4 h-100">
+                        <h5 class="fw-bold mb-2">주문 상태 확인</h5>
+                        <p class="text-muted mb-0">
+                            결제 완료 후 배송 준비, 배송중, 배송완료 상태를 확인할 수 있습니다.
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -48,7 +83,8 @@
                 <c:forEach var="product" items="${latestProducts}">
 
                     <div class="col-md-3">
-                        <a href="${contextPath}/products/${product.productId}">
+                        <a href="${contextPath}/products/${product.productId}"
+                           class="text-decoration-none text-dark">
 
                             <div class="card border-0 shadow-sm rounded-4 h-100">
                                 <div class="bg-white rounded-top-4 d-flex align-items-center justify-content-center"
@@ -63,28 +99,26 @@
                                         </c:when>
 
                                         <c:otherwise>
-                                <span class="text-muted">
-                                    도서 이미지
-                                </span>
+                                            <span class="text-muted">도서 이미지</span>
                                         </c:otherwise>
                                     </c:choose>
 
                                 </div>
                                 <div class="card-body">
                                     <p class="text-muted small mb-1">
-                                            ${product.publisher}
+                                        ${product.publisher}
                                     </p>
 
                                     <h5 class="fw-bold mb-2">
-                                            ${product.name}
+                                        ${product.name}
                                     </h5>
 
                                     <p class="text-muted small mb-3">
-                                            ${product.author}
+                                        ${product.author}
                                     </p>
 
                                     <p class="fw-bold mb-0">
-                                            ${product.price}원
+                                        <fmt:formatNumber value="${product.price}" pattern="#,###"/>원
                                     </p>
                                 </div>
 
@@ -108,6 +142,98 @@
             </div>
         </div>
 
+    </section>
+
+    <!-- 카테고리 바로가기 -->
+    <section class="py-5 bg-white border-top">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-end mb-4">
+                <div>
+                    <h2 class="h4 fw-bold mb-1">카테고리 바로가기</h2>
+                    <p class="text-muted mb-0">관심 있는 분야의 도서를 빠르게 찾아보세요.</p>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-6 col-md-4 col-lg-2">
+                    <a href="${contextPath}/products"
+                       class="d-block text-center text-decoration-none text-dark border rounded-4 py-4 bg-light h-100">
+                        <strong>전체 도서</strong>
+                    </a>
+                </div>
+
+                <c:forEach var="category" items="${headerCategories}">
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <a href="${contextPath}/products?categoryId=${category.categoryId}"
+                           class="d-block text-center text-decoration-none text-dark border rounded-4 py-4 bg-light h-100">
+                            <strong>${category.categoryName}</strong>
+                        </a>
+                    </div>
+                </c:forEach>
+            </div>
+        </div>
+    </section>
+
+    <!-- 이용 흐름 -->
+    <section class="py-5 bg-light border-top">
+        <div class="container">
+            <div class="text-center mb-4">
+                <h2 class="h4 fw-bold mb-2">BookShop 이용 흐름</h2>
+                <p class="text-muted mb-0">
+                    도서 탐색부터 주문, 결제, 배송 상태 확인까지 한 번에 진행할 수 있습니다.
+                </p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm rounded-4 h-100">
+                        <div class="card-body text-center">
+                            <div class="fw-bold text-primary mb-2">STEP 1</div>
+                            <h6 class="fw-bold">도서 선택</h6>
+                            <p class="text-muted small mb-0">
+                                카테고리와 검색을 통해 원하는 도서를 찾습니다.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm rounded-4 h-100">
+                        <div class="card-body text-center">
+                            <div class="fw-bold text-primary mb-2">STEP 2</div>
+                            <h6 class="fw-bold">장바구니 담기</h6>
+                            <p class="text-muted small mb-0">
+                                수량을 선택하고 장바구니에 상품을 담습니다.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm rounded-4 h-100">
+                        <div class="card-body text-center">
+                            <div class="fw-bold text-primary mb-2">STEP 3</div>
+                            <h6 class="fw-bold">주문 및 결제</h6>
+                            <p class="text-muted small mb-0">
+                                배송 정보를 입력하고 결제를 완료합니다.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm rounded-4 h-100">
+                        <div class="card-body text-center">
+                            <div class="fw-bold text-primary mb-2">STEP 4</div>
+                            <h6 class="fw-bold">주문 상태 확인</h6>
+                            <p class="text-muted small mb-0">
+                                마이페이지에서 주문과 배송 상태를 확인합니다.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
 
 </main>

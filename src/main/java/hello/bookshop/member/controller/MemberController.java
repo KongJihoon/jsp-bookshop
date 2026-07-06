@@ -1,10 +1,12 @@
 package hello.bookshop.member.controller;
 
+import hello.bookshop.common.exception.CustomException;
 import hello.bookshop.common.exception.member.DuplicateMemberException;
 import hello.bookshop.common.session.SessionConst;
 import hello.bookshop.member.dto.request.MemberLoginRequest;
 import hello.bookshop.member.dto.request.MemberSignUpRequest;
 import hello.bookshop.member.dto.request.MemberUpdateRequest;
+import hello.bookshop.member.dto.request.MemberWithdrawRequest;
 import hello.bookshop.member.dto.response.MemberInfoResponse;
 import hello.bookshop.member.dto.response.MyPageHomeResponse;
 import hello.bookshop.member.dto.response.SessionMemberDto;
@@ -227,6 +229,51 @@ public class MemberController {
             return "member/edit";
 
         }
+
+    }
+
+    /**
+     * 회원탈퇴
+     */
+    @PostMapping("/withdraw")
+    public String withdraw(
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER) SessionMemberDto loginMember,
+            @Validated @ModelAttribute MemberWithdrawRequest request,
+            BindingResult bindingResult,
+            HttpServletRequest httpRequest,
+            RedirectAttributes redirectAttributes
+            ) {
+
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage", bindingResult.getAllErrors().get(0).getDefaultMessage()
+            );
+
+            return "redirect:/member/edit";
+
+        }
+
+        try {
+            memberService.withdrawMember(loginMember.getMemberId(), request.getPassword());
+
+            HttpSession session = httpRequest.getSession(false);
+            if (session != null) {
+                session.invalidate();
+            }
+
+            redirectAttributes.addFlashAttribute(
+                    "successMessage",
+                    "회원탈퇴가 완료되었습니다."
+            );
+
+            return "redirect:/";
+
+        } catch (CustomException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+
+            return "redirect:/member/edit";
+        }
+
 
     }
 

@@ -1,48 +1,111 @@
-# 📚 JSP BookMall
+# 📚 JSP BookShop
 
-> JSP + Servlet + MyBatis 기반의 전통적인 서버 사이드 렌더링 구조를 학습하기 위한 도서 쇼핑몰 프로젝트
+> Spring Boot + JSP + MyBatis 기반의 서버 사이드 렌더링 도서 쇼핑몰 프로젝트
 
-
-- JSP / Servlet 기반의 요청 흐름과 Session 기반 인증 방식을 이해하기 위해 진행한 프로젝트입니다.
-- 회원가입, 로그인, 상품 관리, 장바구니, 주문 기능 등을 구현하며 전통적인 웹 애플리케이션 구조를 학습하는 것을 목표로 하였습니다.
-- 단순 CRUD 구현을 넘어서 관리자 권한 분리, 상품 상태 관리, 주문/재고 처리 흐름 등을 고려하여 구현할 예정입니다.
+- JSP/JSTL 기반 화면과 Spring MVC 요청 흐름을 학습하기 위해 진행한 온라인 도서 쇼핑몰 프로젝트입니다.
+- 회원가입, 로그인, 상품 조회, 장바구니, 주문, 결제, 마이페이지, 관리자 상품/주문 관리 기능을 구현했습니다.
+- 단순 CRUD를 넘어서 Session 기반 인증, 관리자 권한 분리, 상품 상태 관리, 주문/결제/재고 처리, 배송 상태 변경 흐름을 고려했습니다.
+- 구현 과정에서 발생한 트러블슈팅과 설계 선택 이유를 `docs` 폴더에 별도로 정리했습니다.
 
 ---
 
 # 🗓️ 개발 기간
 
-- 2026.05 ~ 진행 중 (약 3주 예정)
+- 2026.05.25 ~ 2026.07.07
 
 ---
 
 # 1️⃣ ERD
 
-> ERD는 docs 폴더에 정리 예정입니다.
+> ERD는 `docs` 폴더에 정리 예정입니다.
 
-![ERD](./docs/erd.png)
+주요 테이블 구성:
+
+```text
+member
+category
+product
+product_image
+cart
+cart_item
+orders
+order_item
+payment
+```
 
 ---
 
 # 🏛️ 프로젝트 구조
 
 ```text
-src/main/java
-├── controller
-├── service
-├── repository
-├── mapper
-├── domain
-├── dto
-├── filter
-├── util
-└── exception
+src/main/java/hello/bookshop
+├── admin
+│   ├── controller
+│   ├── dto
+│   └── service
+├── cart
+│   ├── controller
+│   ├── domain
+│   ├── dto
+│   ├── mapper
+│   └── service
+├── category
+│   ├── domain
+│   ├── mapper
+│   ├── service
+│   └── type
+├── common
+│   ├── advice
+│   ├── config
+│   ├── dto
+│   ├── exception
+│   ├── interceptor
+│   └── session
+├── file
+├── home
+│   ├── controller
+│   ├── dto
+│   └── service
+├── member
+│   ├── controller
+│   ├── domain
+│   ├── dto
+│   ├── mapper
+│   ├── service
+│   ├── type
+│   └── validator
+├── order
+│   ├── controller
+│   ├── domain
+│   ├── dto
+│   ├── mapper
+│   ├── service
+│   └── type
+├── payment
+│   ├── client
+│   ├── config
+│   ├── controller
+│   ├── domain
+│   ├── dto
+│   ├── mapper
+│   ├── service
+│   └── type
+└── product
+    ├── controller
+    ├── domain
+    ├── dto
+    ├── mapper
+    ├── service
+    └── type
 
-src/main/webapp
-├── WEB-INF
-│   └── views
-├── css
-├── js
-└── images
+src/main/webapp/WEB-INF/views
+├── admin
+├── cart
+├── common
+├── member
+├── order
+├── payment
+└── product
 ```
 
 ---
@@ -52,33 +115,53 @@ src/main/webapp
 ## 👨‍💻 Backend
 
 - Java 17
-- JSP / Servlet
+- Spring Boot 3.5
+- Spring MVC
+- JSP / JSTL / EL
 - MyBatis
-- JDBC
+- Bean Validation
+- Session / Interceptor 기반 인증 처리
 
 ## 🎨 Frontend
 
 - HTML
 - CSS
 - JavaScript
-- JSTL / EL
+- Bootstrap 5
+- JSP / JSTL
 
 ## ⚙️ Database
 
 - MySQL
+- MyBatis XML Mapper
+
+## 💳 Payment
+
+- Toss Payments Test API
+- 결제 승인 API 연동
+- 결제 성공/실패 상태 관리
+
+## 🧪 Test
+
+- JUnit 5
+- AssertJ
+- Mockito
+- MyBatis Test
+- 주문 재고 차감 동시성 테스트
 
 ## 🧰 Tools
 
 - IntelliJ IDEA
 - Git & GitHub
-- Maven
+- Gradle
+- DataGrip
 - Notion
 
 ---
 
 # 🧩 주요 기능
 
-## 👤 회원 (User)
+## 👤 회원 (Member)
 
 ### 회원가입
 
@@ -87,191 +170,254 @@ src/main/webapp
 - [x] 이메일 중복 검사
 - [x] 비밀번호 암호화 저장
 - [x] 입력값 검증 처리
-- [x] 회원 기본 권한(USER) 부여
-- [x] 회원 상태 ACTIVE 저장
+- [x] 회원 기본 권한 `USER` 부여
 
-### 로그인
+### 로그인 / 로그아웃
 
 - [x] 아이디 / 비밀번호 기반 로그인
 - [x] 로그인 성공 시 Session 저장
 - [x] 로그인 실패 처리
-- [x] 로그인 사용자 접근 처리
-
-### 로그아웃
-
-- [x] Session 무효화 처리
-- [x] 로그아웃 후 메인 페이지 이동
+- [x] 로그아웃 시 Session 무효화
+- [x] 비로그인 사용자 접근 제한
 
 ### 마이페이지
 
 - [x] 회원 정보 조회
 - [x] 회원 정보 수정
-- [ ] 비밀번호 변경
-- [ ] 주문 내역 조회
-
-### 회원탈퇴
-
-- [ ] 회원 상태 WITHDRAWN 변경
-- [ ] Soft Delete 처리
+- [x] 최근 주문 내역 조회
+- [x] 장바구니/주문 요약 정보 표시
 
 ---
 
 # 🔐 인증 / 인가
 
-- [x] LoginCheckFilter 구현
-- [x] AdminCheckFilter 구현
+- [x] `LoginCheckInterceptor` 구현
+- [x] `AdminCheckInterceptor` 구현
+- [x] `GuestOnlyInterceptor` 구현
 - [x] 관리자 / 일반 사용자 권한 분리
 - [x] 비로그인 사용자 접근 제한
+- [x] 관리자 페이지 접근 권한 검증
 
 ---
 
 # 📦 상품 (Product)
 
-## 상품 기능
+## 사용자 상품 기능
 
-- [x] 상품 등록
-- [ ] 상품 수정
-- [ ] 상품 삭제
 - [x] 상품 목록 조회
 - [x] 상품 상세 조회
-- [x] 카테고리별 조회
+- [x] 카테고리별 상품 조회
+- [x] 상품명 / 저자 검색
+- [x] 검색 조건 유지
+- [x] 페이징 처리
+- [x] 판매 중 상품만 사용자 화면 노출
+
+## 관리자 상품 기능
+
+- [x] 상품 등록
+- [x] 상품 수정
+- [x] 상품 삭제
+- [x] 상품 목록 조회
+- [x] 상품 상세 조회
+- [x] 카테고리 / 판매 상태 필터
 - [x] 검색 및 페이징 처리
+- [x] 대표 이미지 / 상세 이미지 업로드
+- [x] 이미지 미리보기 처리
 
 ## 상품 상태 관리
 
-- [x] ON_SALE
-- [x] SOLD_OUT
-- [x] DELETED
+- [x] `ACTIVE`
+- [x] `SOLD_OUT`
+- [x] `DELETED`
 
 ---
 
 # 🛒 장바구니 (Cart)
 
-- [ ] 장바구니 담기
-- [ ] 장바구니 조회
-- [ ] 수량 변경
-- [ ] 장바구니 상품 삭제
+- [x] 장바구니 담기
+- [x] 기존 상품 담기 시 수량 증가
+- [x] 장바구니 조회
+- [x] 선택 상품 금액 계산
+- [x] 전체 선택 / 개별 선택
+- [x] 수량 변경
+- [x] 장바구니 상품 삭제
+- [x] 재고 초과 검증
+- [x] Fetch 기반 비동기 수량 변경 / 삭제 처리
 
 ---
 
 # 📄 주문 (Order)
 
-- [ ] 주문 생성
-- [ ] 주문 내역 조회
-- [ ] 주문 상세 조회
-- [ ] 주문 취소
-- [ ] 배송 상태 관리
-- [ ] 주문 취소 시 재고 복구
+- [x] 장바구니 선택 상품 주문 폼 생성
+- [x] 배송지 입력
+- [x] 주문 생성
+- [x] 주문 상품 스냅샷 저장
+- [x] 주문 내역 조회
+- [x] 주문 상세 조회
+- [x] 결제 실패 / 결제 대기 주문 사용자 주문내역 제외
+- [x] 주문 생성 시 재고 검증
+- [x] 결제 완료 시 재고 차감
+- [x] 재고 차감 동시성 테스트
 
 ---
 
-# 🚚 배송 (Delivery)
+# 💳 결제 (Payment)
 
-- [ ] 배송지 입력
-- [ ] 배송 상태 변경
-- [ ] 기본 배송지 자동 입력
+- [x] Toss Payments 결제창 연동
+- [x] 결제 대기 상태 저장
+- [x] 결제 승인 API 호출
+- [x] 결제 금액 검증
+- [x] 결제 성공 시 주문 상태 `PAID` 변경
+- [x] 결제 실패 시 주문 상태 `FAILED` 변경
+- [x] 결제 수단 관리
+
+```text
+CARD
+TOSS_PAY
+KAKAO_PAY
+NAVER_PAY
+PAYCO
+EASY_PAY
+UNKNOWN
+```
+
+---
+
+# 🚚 배송 / 관리자 주문 관리
+
+- [x] 관리자 주문 목록 조회
+- [x] 관리자 주문 목록 페이징 처리
+- [x] 관리자 주문 상세 조회
+- [x] 주문 상품 / 배송지 / 주문자 정보 확인
+- [x] 배송 상태 변경
+- [x] 주문 상태 전이 검증
+
+```text
+PAID → PREPARING → SHIPPING → DELIVERED
+```
 
 ---
 
 # 🔍 검색 기능
 
-- [ ] 상품명 검색
-- [ ] 저자 검색
-- [ ] 출판사 검색
-- [ ] 검색 결과 페이징 처리
-- [ ] 검색 조건 유지
+- [x] 상품명 검색
+- [x] 저자 검색
+- [x] 검색 결과 페이징 처리
+- [x] 검색 조건 유지
+- [x] 카테고리 필터와 검색 조건 동시 유지
 
 ---
 
-# ⭐ 리뷰 기능
+# 🧪 테스트
 
-- [ ] 리뷰 작성
-- [ ] 리뷰 목록 조회
-- [ ] 리뷰 수정
-- [ ] 리뷰 삭제
-- [ ] 평점 등록
+주요 테스트 범위:
 
----
-
-# 📄 API / 화면 명세
-
-> 추후 docs 폴더에 정리 예정입니다.
-
-```text
-docs/api.md
-docs/screen/
-```
+- [x] 회원가입 / 로그인 / 회원정보 수정 단위 테스트
+- [x] 상품 목록 / 상세 조회 테스트
+- [x] 관리자 상품 등록 / 수정 / 삭제 테스트
+- [x] 장바구니 담기 / 조회 / 수량 변경 / 삭제 테스트
+- [x] 주문 생성 / 주문 내역 / 주문 상세 조회 테스트
+- [x] 관리자 주문 조회 / 배송 상태 변경 테스트
+- [x] 결제 승인 서비스 테스트
+- [x] 재고 차감 동시성 테스트
 
 ---
 
-# 🎥 시연 화면
+# 📄 문서화
 
-## 회원가입
-
-> 추후 GIF 추가 예정
+구현 과정에서 발생한 주요 의사결정과 트러블슈팅을 `docs` 폴더에 정리했습니다.
 
 ```text
-docs/screen/signup.gif
+docs/decision
+├── admin
+├── cart
+├── member
+├── order
+├── payment
+└── product
+
+docs/troubleshooting
+├── admin
+├── member
+├── order
+└── product
 ```
 
-## 로그인
+주요 문서:
 
-> 추후 GIF 추가 예정
-
-```text
-docs/screen/login.gif
-```
+- 상품 이미지 테이블 분리
+- 관리자 상품 목록 필터/페이징 처리
+- 장바구니 수량 변경 방식
+- 주문 생성 시 스냅샷 데이터 저장
+- 주문 재고 차감 동시성 처리
+- Toss Payments 결제 흐름
+- 관리자 주문/배송 상태 관리
 
 ---
 
-# 🔥 핵심 구현 예정 내용
+# 🔥 핵심 구현 내용
 
-## Session 기반 로그인 처리
+## Session 기반 인증 처리
 
-- 로그인 성공 시 Session에 사용자 정보 저장
-- 인증이 필요한 URL 접근 제한
-- Filter 기반 인증 처리
+- 로그인 성공 시 Session에 사용자 정보를 저장했습니다.
+- 인증이 필요한 URL은 `LoginCheckInterceptor`에서 접근을 제한했습니다.
+- 관리자 URL은 `AdminCheckInterceptor`에서 관리자 권한을 검증했습니다.
 
-## 상품 상태 관리
+## 상품 Soft Delete 및 상태 관리
 
-- 실제 삭제 대신 상태값(DELETED) 변경 방식 적용
-- 판매 중 상품만 사용자 화면 노출
+- 상품 삭제 시 실제 데이터를 삭제하지 않고 상태를 `DELETED`로 변경했습니다.
+- 사용자 화면에서는 `ACTIVE` 상태의 상품만 조회되도록 처리했습니다.
+- 주문 결제 후 재고가 0이 되면 상품 상태를 `SOLD_OUT`으로 변경하도록 처리했습니다.
 
-```text
-ON_SALE
-SOLD_OUT
-DELETED
+## 주문 상품 스냅샷 저장
+
+- 주문 이후 상품명이나 가격이 변경되어도 주문 당시 정보를 유지하기 위해 `order_item`에 상품명, 가격, 수량, 상품별 금액을 저장했습니다.
+
+## 결제 승인 이후 재고 차감
+
+- Toss Payments 결제 승인 이후 재고를 차감했습니다.
+- 재고 차감은 조건부 UPDATE를 사용해 재고가 음수가 되지 않도록 처리했습니다.
+
+```sql
+UPDATE product
+SET stock_quantity = stock_quantity - #{quantity}
+WHERE product_id = #{productId}
+AND stock_quantity >= #{quantity}
 ```
 
-## 주문 취소 시 재고 복구
+## 관리자 배송 상태 변경
 
-- 주문 생성 시 재고 감소
-- 배송 전 상태에서만 주문 취소 가능
-- 주문 취소 시 상품 재고 복구 처리
+- 관리자가 결제 완료된 주문의 배송 상태를 변경할 수 있도록 구현했습니다.
+- 잘못된 상태 변경을 방지하기 위해 `OrderStatus`에서 상태 전이 가능 여부를 검증했습니다.
 
 ---
 
 # ⚠️ 트러블슈팅
 
-> 자세한 내용은 docs/troubleshooting.md 에 정리 예정입니다.
+대표 트러블슈팅:
 
-예정 항목:
+- JSP EL 표현식에서 DTO 필드명 불일치 문제
+- 이미지 업로드 경로와 정적 리소스 조회 경로 불일치 문제
+- 장바구니 수량 변경 후 화면 금액 동기화 문제
+- 주문 재고 차감 동시성 테스트
+- 결제 실패 주문이 사용자 주문 내역에 노출되던 문제
+- 관리자/사용자 상품 예외 처리 redirect 경로 충돌 문제
+- 공통 마이페이지 요약 정보를 JSP include에서 처리할 때의 한계
 
-- Session 유지 문제
-- 검색 조건 유지 문제
-- MyBatis parameterType 오류
-- JSP EL 표현식 출력 문제
-- 파일 업로드 경로 문제
-- 한글 인코딩 문제
+자세한 내용은 `docs/troubleshooting` 및 `docs/decision` 폴더에 정리했습니다.
 
 ---
 
 # 📚 회고
 
-프로젝트 완료 후 작성 예정입니다.
+이번 프로젝트를 통해 JSP 기반 서버 사이드 렌더링 환경에서 Spring MVC, MyBatis, Session 인증, 관리자 기능, 주문/결제 흐름을 end-to-end로 구현했습니다.
 
-- JSP / Servlet 요청 흐름 학습
-- Session 기반 인증 처리 경험
-- MyBatis SQL 작성 경험
-- CRUD 및 검색/페이징 구현 경험
-- 관리자 기능 설계 경험
+특히 단순 CRUD를 넘어 장바구니 수량 변경, 주문 상품 스냅샷 저장, 결제 승인, 재고 차감, 배송 상태 변경, 예외 처리 분리와 같은 쇼핑몰 도메인의 흐름을 직접 구현하며 전통적인 웹 애플리케이션 구조를 학습했습니다.
+
+향후 개선할 부분:
+
+- 결제 승인 후 재고 차감 실패 시 Toss 결제 취소 API를 통한 보상 처리
+- 주문 취소 및 재고 복구 기능
+- 배송 이력 테이블 분리
+- 관리자 회원 관리 기능 고도화
+- 운영 환경 배포 및 CI/CD 구성

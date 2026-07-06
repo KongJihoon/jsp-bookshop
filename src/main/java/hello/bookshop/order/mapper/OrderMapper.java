@@ -71,4 +71,6 @@ public interface OrderMapper {
             @Param("orderStatus") OrderStatus orderStatus
     );
 
+    boolean existsByActiveOrderByMemberId(Long memberId);
+
 }

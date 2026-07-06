@@ -80,6 +80,11 @@ public class Member {
 
     }
 
+    public void withdraw() {
+        this.withdrawnAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
 
 
 

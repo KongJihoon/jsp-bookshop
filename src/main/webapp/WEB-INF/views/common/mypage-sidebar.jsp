@@ -20,7 +20,6 @@
         <ul>
             <li><a href="${contextPath}/member/info">회원정보 조회</a></li>
             <li><a href="${contextPath}/member/edit">회원정보 수정</a></li>
-            <li><a href="#">회원탈퇴</a></li>
         </ul>
 
     </div>

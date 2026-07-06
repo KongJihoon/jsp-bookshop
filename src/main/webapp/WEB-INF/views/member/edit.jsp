@@ -135,6 +135,64 @@
             </form>
             <!-- 회원정보 카드 대시보드 스타일 -->
 
+            <div class="mt-5 pt-4 border-top">
+                <div class="d-flex justify-content-between align-items-start">
+
+                    <div>
+                        <h6 class="fw-bold text-danger mb-1">회원 탈퇴</h6>
+                        <p class="text-muted small mb-0">
+                            탈퇴 시 계정은 비활성화되며, 동일 계정으로 로그인할 수 없습니다.
+                        </p>
+                    </div>
+
+                    <button type="button"
+                            class="btn btn-sm btn-outline-danger"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#withdrawFormArea"
+                            aria-expanded="false"
+                            aria-controls="withdrawFormArea">회원 탈퇴</button>
+
+                </div>
+
+                <div class="collapse mt-3" id="withdrawFormArea">
+                    <form id="withdrawForm" action="${contextPath}/member/withdraw"
+                        method="post"
+                        class="card border-danger-subtle rounded-4">
+
+                        <div class="card-body">
+                            <label for="withdrawPassword" class="form-label fw-semibold">
+                                비밀번호 확인
+                            </label>
+
+                            <input  type="password"
+                                    id="withdrawPassword"
+                                    name="password"
+                                    class="form-control"
+                                    placeholder="현재 비밀번호를 입력해주세요."
+                                    autocomplete="current-password">
+                            <p class="text-muted small mt-2 mb-0">
+                                회원탈퇴 후에는 해당 계정으로 로그인할 수 없습니다.
+                            </p>
+                        </div>
+                        <div class="card-footer bg-white border-0 d-flex justify-content-end">
+                            <button type="button"
+                                    class="btn btn-danger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#commonConfirmModal"
+                                    data-title="회원 탈퇴"
+                                    data-message="회원탈퇴를 진행하면 계정이 비활성화되며 다시 로그인할 수 없습니다. 정말 탈퇴하시겠습니까?"
+                                    data-confirm-text="탈퇴하기"
+                                    data-confirm-class="btn-danger"
+                                    data-action-type="submit"
+                                    data-form-id="withdrawForm">
+                                탈퇴하기
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
         </section>
 
 
@@ -147,6 +205,7 @@
 
 
 <jsp:include page="../common/footer.jsp"/>
+<jsp:include page="../common/confirm-modal.jsp"/>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 

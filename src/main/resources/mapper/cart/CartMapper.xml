@@ -152,4 +152,13 @@
         AND p.deleted_at IS NULL
     </select>
 
+    <delete id="deleteCartItemByMemberId"
+            parameterType="long">
+        DELETE ci
+        FROM cart_item ci
+        JOIN cart c
+            ON ci.cart_id = c.cart_id
+        WHERE c.member_id = #{memberId}
+    </delete>
+
 </mapper>
