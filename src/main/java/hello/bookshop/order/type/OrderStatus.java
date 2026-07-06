@@ -16,4 +16,23 @@ public enum OrderStatus {
     FAILED("결제실패");
 
     private final String description;
+
+    public boolean canChangStatus(OrderStatus nextStatus) {
+
+        if (this == PAID) {
+            return nextStatus == PREPARING;
+        }
+
+        if (this == PREPARING) {
+            return nextStatus == SHIPPING;
+        }
+
+        if (this == SHIPPING) {
+            return nextStatus == DELIVERED;
+        }
+
+
+        return false;
+
+    }
 }
