@@ -5,8 +5,8 @@ import hello.bookshop.common.dto.PageRequest;
 import hello.bookshop.common.dto.PageResponse;
 import hello.bookshop.common.exception.category.NotFoundCategoryException;
 import hello.bookshop.common.exception.member.MemberNotFoundException;
+import hello.bookshop.common.exception.product.AdminProductNotFoundException;
 import hello.bookshop.common.exception.product.FileUploadException;
-import hello.bookshop.common.exception.product.ProductNotFoundException;
 import hello.bookshop.file.FileStore;
 import hello.bookshop.file.UploadFile;
 import hello.bookshop.member.domain.Member;
@@ -102,7 +102,7 @@ public class AdminProductService {
     public AdminProductDetailResponse getAdminProductDetail(Long productId) {
 
         AdminProductDetailResponse product = productMapper.findAdminProductDetail(productId)
-                .orElseThrow(() -> new ProductNotFoundException("도서를 찾을 수 없습니다."));
+                .orElseThrow(() -> new AdminProductNotFoundException("도서를 찾을 수 없습니다."));
 
         List<ProductImageResponse> images = productMapper.findProductImagesByProductId(product.getProductId());
 
@@ -122,7 +122,7 @@ public class AdminProductService {
                 .orElseThrow(MemberNotFoundException::new);
 
         Product product = productMapper.findByProductIdAndDeletedAtIsNull(productId)
-                .orElseThrow(() -> new ProductNotFoundException("도서를 찾을 수 없습니다."));
+                .orElseThrow(() -> new AdminProductNotFoundException("도서를 찾을 수 없습니다."));
 
         boolean exists = categoryMapper.existsByCategoryId(request.getCategoryId());
 
@@ -167,14 +167,14 @@ public class AdminProductService {
                 .orElseThrow(MemberNotFoundException::new);
 
         Product product = productMapper.findByProductIdAndDeletedAtIsNull(productId)
-                .orElseThrow(() -> new ProductNotFoundException("도서를 찾을 수 없습니다."));
+                .orElseThrow(() -> new AdminProductNotFoundException("도서를 찾을 수 없습니다."));
 
         product.deleteProduct(member.getMemberId());
 
         int deleted = productMapper.deleteProduct(product);
 
         if (deleted == 0) {
-            throw new ProductNotFoundException("이미 삭제되었거나 존재하지 않은 도서입니다.");
+            throw new AdminProductNotFoundException("이미 삭제되었거나 존재하지 않은 도서입니다.");
         }
 
     }

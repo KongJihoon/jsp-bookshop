@@ -5,7 +5,7 @@ import hello.bookshop.common.dto.PageRequest;
 import hello.bookshop.common.exception.category.NotFoundCategoryException;
 import hello.bookshop.common.exception.member.MemberNotFoundException;
 import hello.bookshop.common.exception.product.FileUploadException;
-import hello.bookshop.common.exception.product.ProductNotFoundException;
+import hello.bookshop.common.exception.product.AdminProductNotFoundException;
 import hello.bookshop.file.FileStore;
 import hello.bookshop.file.UploadFile;
 import hello.bookshop.member.domain.Member;
@@ -569,7 +569,7 @@ class AdminProductServiceTest {
         // then
 
         assertThatThrownBy(() -> adminProductService.updateProduct(productId, adminId, request))
-                .isInstanceOf(ProductNotFoundException.class)
+                .isInstanceOf(AdminProductNotFoundException.class)
                 .hasMessage("도서를 찾을 수 없습니다.");
 
         verify(productMapper, never()).updateProduct(any(Product.class));
@@ -687,7 +687,7 @@ class AdminProductServiceTest {
         // then
 
         assertThatThrownBy(() -> adminProductService.deleteProduct(productId, adminId))
-                .isInstanceOf(ProductNotFoundException.class)
+                .isInstanceOf(AdminProductNotFoundException.class)
                 .hasMessage("이미 삭제되었거나 존재하지 않은 도서입니다.");
     }
 

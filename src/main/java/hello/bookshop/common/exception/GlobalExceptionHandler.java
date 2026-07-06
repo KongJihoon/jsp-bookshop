@@ -6,6 +6,7 @@ import hello.bookshop.common.exception.member.DuplicateMemberException;
 import hello.bookshop.common.exception.member.MemberLoginFailedException;
 import hello.bookshop.common.exception.member.MemberNotFoundException;
 import hello.bookshop.common.exception.member.NotLoginMemberException;
+import hello.bookshop.common.exception.product.AdminProductNotFoundException;
 import hello.bookshop.common.exception.product.ProductNotFoundException;
 import hello.bookshop.common.exception.product.StockQuantityExceedException;
 import lombok.extern.slf4j.Slf4j;
@@ -92,27 +93,36 @@ public class GlobalExceptionHandler {
         return "redirect:/admin/product/add";
     }
 
-    @ExceptionHandler(ProductNotFoundException.class)
-    public String handleProductNotFoundException(ProductNotFoundException e, RedirectAttributes redirectAttributes) {
+    @ExceptionHandler(AdminProductNotFoundException.class)
+    public String handleAdminProductNotFoundException(AdminProductNotFoundException e, RedirectAttributes redirectAttributes) {
+        log.warn("관리자 상품 조회 실패 발생 = {}", e.getMessage());
 
         redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
 
+        return "redirect:/admin/product/list";
+    }
 
-        return "redirect:/admin/product/{productId}";
+    @ExceptionHandler(ProductNotFoundException.class)
+    public String handleProductNotFoundException(ProductNotFoundException e, RedirectAttributes redirectAttributes) {
+        log.warn("상품 조회 실패 발생 = {}", e.getMessage());
+
+        redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+
+        return "redirect:/products";
     }
 
     @ExceptionHandler(StockQuantityExceedException.class)
     public String handleStockQuantityExceedException(StockQuantityExceedException e, RedirectAttributes redirectAttributes) {
         redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
 
-        return "redirect:/product/detail";
+        return "redirect:/products";
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public String handleIllegalArgumentException(IllegalArgumentException e, RedirectAttributes redirectAttributes) {
         redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
 
-        return "redirect:/product/detail";
+        return "redirect:/products";
     }
 
 

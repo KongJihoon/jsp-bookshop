@@ -17,7 +17,7 @@ public enum OrderStatus {
 
     private final String description;
 
-    public boolean canChangStatus(OrderStatus nextStatus) {
+    public boolean canChangeStatus(OrderStatus nextStatus) {
 
         if (this == PAID) {
             return nextStatus == PREPARING;
