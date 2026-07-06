@@ -1,14 +1,14 @@
 package hello.bookshop.member.service;
 
-import hello.bookshop.common.exception.member.DuplicateMemberException;
-import hello.bookshop.common.exception.member.MemberLoginFailedException;
-import hello.bookshop.common.exception.member.MemberNotFoundException;
+import hello.bookshop.cart.mapper.CartMapper;
+import hello.bookshop.common.exception.member.*;
 import hello.bookshop.member.domain.Member;
 import hello.bookshop.member.dto.response.MemberInfoResponse;
 import hello.bookshop.member.dto.request.MemberSignUpRequest;
 import hello.bookshop.member.dto.request.MemberUpdateRequest;
 import hello.bookshop.member.dto.response.SessionMemberDto;
 import hello.bookshop.member.mapper.MemberMapper;
+import hello.bookshop.order.mapper.OrderMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,6 +33,12 @@ class MemberServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private OrderMapper orderMapper;
+
+    @Mock
+    private CartMapper cartMapper;
 
     @InjectMocks
     private MemberService memberService;
@@ -347,6 +353,152 @@ class MemberServiceTest {
 
         verify(memberMapper).existsByEmailAndMemberIdNot(request.getEmail(), memberId);
         verify(memberMapper).findMemberByIdAndWithdrawnAtIsNull(memberId);
+
+    }
+
+    @Test
+    @DisplayName("회원 탈퇴 성공")
+    void withdrawMember_success() {
+        // given
+
+        Long memberId = 1L;
+
+        String rawPassword = "test123";
+        String encodedPassword = "encodedPassword";
+        Member member = Member.signUp(
+                "testId",
+                encodedPassword,
+                "홍길동",
+                "test@test.com",
+                "010-1111-2222",
+                "12345",
+                "테스트 주소",
+                "테스트 상세주소"
+        );
+
+        when(memberMapper.findMemberByIdAndWithdrawnAtIsNull(memberId))
+                .thenReturn(Optional.of(member));
+
+        when(passwordEncoder.matches(rawPassword, encodedPassword))
+                .thenReturn(true);
+
+        when(orderMapper.existsByActiveOrderByMemberId(memberId))
+                .thenReturn(false);
+
+        when(cartMapper.deleteCartItemByMemberId(memberId))
+                .thenReturn(2);
+
+        when(memberMapper.withdraw(member))
+                .thenReturn(1);
+
+        // when
+
+        memberService.withdrawMember(memberId, rawPassword);
+
+        // then
+
+        ArgumentCaptor<Member> captor = ArgumentCaptor.forClass(Member.class);
+
+        verify(memberMapper).withdraw(captor.capture());
+
+        Member withdrawnMember = captor.getValue();
+
+        assertThat(withdrawnMember.getWithdrawnAt()).isNotNull();
+
+        verify(memberMapper).findMemberByIdAndWithdrawnAtIsNull(memberId);
+        verify(passwordEncoder).matches(rawPassword, encodedPassword);
+        verify(orderMapper).existsByActiveOrderByMemberId(memberId);
+        verify(cartMapper).deleteCartItemByMemberId(memberId);
+
+
+    }
+
+    @Test
+    @DisplayName("회원탈퇴 실패 - 비밀번호 불일치")
+    void withdrawMember_fail_passwordMismatch() {
+        // given
+
+        Long memberId = 1L;
+        String rawPassword = "wrongPassword";
+        String encodedPassword = "encodedPassword";
+
+        Member member = Member.signUp(
+                "testId",
+                encodedPassword,
+                "홍길동",
+                "test@test.com",
+                "010-1111-2222",
+                "12345",
+                "테스트 주소",
+                "테스트 상세주소"
+        );
+
+        when(memberMapper.findMemberByIdAndWithdrawnAtIsNull(memberId))
+                .thenReturn(Optional.of(member));
+
+        when(passwordEncoder.matches(rawPassword, encodedPassword))
+                .thenReturn(false);
+
+        // when
+
+        // then
+
+        assertThatThrownBy(() -> memberService.withdrawMember(memberId, rawPassword))
+                .isInstanceOf(MemberPasswordMismatchException.class)
+                .hasMessage("비밀번호가 일치하지 않습니다.");
+
+        verify(memberMapper).findMemberByIdAndWithdrawnAtIsNull(memberId);
+        verify(passwordEncoder).matches(rawPassword, encodedPassword);
+
+        verify(orderMapper, never()).existsByActiveOrderByMemberId(memberId);
+        verify(cartMapper, never()).deleteCartItemByMemberId(memberId);
+        verify(memberMapper, never()).withdraw(member);
+
+    }
+
+    @Test
+    @DisplayName("회원탈퇴 실패 - 진행 중인 주문 존재시 예외 발생")
+    void withdrawMember_fail_activeOrderExists() {
+        // given
+
+        Long memberId = 1L;
+        String rawPassword = "test123";
+        String encodedPassword = "encodedPassword";
+
+        Member member = Member.signUp(
+                "testId",
+                encodedPassword,
+                "홍길동",
+                "test@test.com",
+                "010-1111-2222",
+                "12345",
+                "테스트 주소",
+                "테스트 상세주소"
+        );
+
+        when(memberMapper.findMemberByIdAndWithdrawnAtIsNull(memberId))
+                .thenReturn(Optional.of(member));
+
+        when(passwordEncoder.matches(rawPassword, encodedPassword))
+                .thenReturn(true);
+
+        when(orderMapper.existsByActiveOrderByMemberId(memberId))
+                .thenReturn(true);
+
+
+        // when
+
+        // then
+
+        assertThatThrownBy(() -> memberService.withdrawMember(memberId,rawPassword))
+                .isInstanceOf(MemberWithdrawNotAllowedException.class)
+                .hasMessage("진행 중인 주문이 존재하여 현재 회원탈퇴가 불가합니다.");
+
+        verify(memberMapper).findMemberByIdAndWithdrawnAtIsNull(memberId);
+        verify(passwordEncoder).matches(rawPassword, encodedPassword);
+        verify(orderMapper).existsByActiveOrderByMemberId(memberId);
+        verify(cartMapper, never()).deleteCartItemByMemberId(anyLong());
+        verify(memberMapper, never()).withdraw(any(Member.class));
 
     }
 

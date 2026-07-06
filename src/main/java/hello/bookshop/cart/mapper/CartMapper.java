@@ -50,4 +50,8 @@ public interface CartMapper {
 
     int countCartItemsByMemberId(Long memberId);
 
+    int deleteCartItemByMemberId(Long memberId);
+
+
+
 }

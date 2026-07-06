@@ -340,5 +340,16 @@
         WHERE order_id = #{orderId}
     </update>
 
+    <select id="existsByActiveOrderByMemberId"
+            parameterType="long"
+            resultType="boolean">
+        SELECT EXISTS(
+            SELECT 1
+            FROM orders
+            WHERE member_id = #{memberId}
+            AND order_status IN ('PAID', 'PREPARING', 'SHIPPING')
+        )
+    </select>
+
 
 </mapper>

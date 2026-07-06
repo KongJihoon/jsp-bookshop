@@ -1,9 +1,7 @@
 package hello.bookshop.member.service;
 
 import hello.bookshop.cart.mapper.CartMapper;
-import hello.bookshop.common.exception.member.DuplicateMemberException;
-import hello.bookshop.common.exception.member.MemberLoginFailedException;
-import hello.bookshop.common.exception.member.MemberNotFoundException;
+import hello.bookshop.common.exception.member.*;
 import hello.bookshop.member.domain.Member;
 import hello.bookshop.member.dto.response.MemberInfoResponse;
 import hello.bookshop.member.dto.request.MemberUpdateRequest;
@@ -116,7 +114,7 @@ public class MemberService {
         memberMapper.update(member);
 
     }
-
+    @Transactional(readOnly = true)
     public MyPageHomeResponse getMyPageHome(Long memberId) {
         int recentOrderCount = orderMapper.countOrdersByMemberId(memberId);
         int cartItemCount = cartMapper.countCartItemsByMemberId(memberId);
@@ -128,6 +126,35 @@ public class MemberService {
                 cartItemCount,
                 recentOrders
         );
+    }
+
+    /**
+     * 회원 탈퇴
+     */
+    @Transactional
+    public void withdrawMember(Long memberId, String password) {
+        Member member = memberMapper.findMemberByIdAndWithdrawnAtIsNull(memberId)
+                .orElseThrow(MemberNotFoundException::new);
+
+        if (!passwordEncoder.matches(password, member.getPassword())) {
+            throw new MemberPasswordMismatchException();
+        }
+
+        boolean hasActiveOrder = orderMapper.existsByActiveOrderByMemberId(memberId);
+
+        if (hasActiveOrder) {
+            throw new MemberWithdrawNotAllowedException();
+        }
+
+        cartMapper.deleteCartItemByMemberId(memberId);
+
+        member.withdraw();
+
+        int updatedCount = memberMapper.withdraw(member);
+
+        if (updatedCount == 0) {
+            throw new MemberNotFoundException();
+        }
     }
 
 

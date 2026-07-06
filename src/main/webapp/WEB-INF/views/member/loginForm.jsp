@@ -80,15 +80,6 @@
     const contextPath = "${contextPath}";
 </script>
 
-<c:if test="${not empty errorMessage}">
-
-    <script>
-        window.addEventListener("DOMContentLoaded", function () {
-           alert("${errorMessage}");
-        });
-    </script>
-
-</c:if>
 
 </body>
 
