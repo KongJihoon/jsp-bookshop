@@ -73,4 +73,6 @@ public interface OrderMapper {
 
     boolean existsByActiveOrderByMemberId(Long memberId);
 
+    List<DeliveryListResponse> findDeliveryOrdersByMemberId(Long memberId);
+
 }
