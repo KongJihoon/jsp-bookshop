@@ -55,9 +55,9 @@
 
                 <div class="d-flex justify-content-center gap-3 mt-4 small">
 
-                    <a href="#" class="text-secondary text-decoration-none">아이디 찾기</a>
+                    <a href="${contextPath}/member/find-id" class="text-secondary text-decoration-none">아이디 찾기</a>
                     <span class="text-muted">|</span>
-                    <a href="#" class="text-secondary text-decoration-none">비밀번호 찾기</a>
+                    <a href="${contextPath}/member/find-password" class="text-secondary text-decoration-none">비밀번호 찾기</a>
                     <span class="text-muted">|</span>
                     <a href="${contextPath}/member/signup" class="text-secondary text-decoration-none">회원가입</a>
                 </div>
