@@ -3,14 +3,13 @@ package hello.bookshop.member.controller;
 import hello.bookshop.common.exception.CustomException;
 import hello.bookshop.common.exception.member.DuplicateMemberException;
 import hello.bookshop.common.session.SessionConst;
-import hello.bookshop.member.dto.request.MemberLoginRequest;
-import hello.bookshop.member.dto.request.MemberSignUpRequest;
-import hello.bookshop.member.dto.request.MemberUpdateRequest;
-import hello.bookshop.member.dto.request.MemberWithdrawRequest;
+import hello.bookshop.member.dto.request.*;
+import hello.bookshop.member.dto.response.MemberFindIdResponse;
 import hello.bookshop.member.dto.response.MemberInfoResponse;
 import hello.bookshop.member.dto.response.MyPageHomeResponse;
 import hello.bookshop.member.dto.response.SessionMemberDto;
 import hello.bookshop.member.service.MemberService;
+import hello.bookshop.member.service.PasswordResetCodeService;
 import hello.bookshop.member.validator.MemberValidator;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -31,6 +30,7 @@ public class MemberController {
 
     private final MemberService memberService;
     private final MemberValidator memberValidator;
+    private final PasswordResetCodeService passwordResetCodeService;
 
 
     /**
@@ -274,6 +274,219 @@ public class MemberController {
             return "redirect:/member/edit";
         }
 
+
+    }
+
+    /**
+     * 아이디 찾기 폼
+     */
+    @GetMapping("/find-id")
+    public String findForm(Model model) {
+        model.addAttribute("memberFindIdRequest", new MemberFindIdRequest());
+
+        return "member/find-id";
+    }
+
+    /**
+     * 아이디 찾기
+     */
+    @PostMapping("/find-id")
+    public String findId(
+            @Validated @ModelAttribute MemberFindIdRequest request,
+            BindingResult bindingResult,
+            Model model
+    ) {
+        if (bindingResult.hasErrors()) {
+
+            model.addAttribute("errorMessage", bindingResult.getAllErrors().get(0).getDefaultMessage());
+
+            return "member/find-id";
+
+        }
+
+        try {
+            MemberFindIdResponse findIdResponse = memberService.findLoginId(request);
+
+            model.addAttribute("findIdResponse", findIdResponse);
+            model.addAttribute("memberFindIdRequest", request);
+
+            return "member/find-id-result";
+
+        } catch (CustomException e) {
+            model.addAttribute("errorMessage", e.getMessage());
+            model.addAttribute("memberFindIdRequest", request);
+
+            return "member/find-id";
+        }
+
+    }
+
+    /**
+     * 비밀번호 찾기 폼
+     */
+    @GetMapping("find-password")
+    public String findPasswordForm(Model model) {
+
+        model.addAttribute("passwordFindRequest", new PasswordFindRequest());
+
+        return "member/find-password";
+
+    }
+
+    /**
+     * 인증번호 발송
+     */
+    @PostMapping("/find-password/email")
+    public String sendPasswordResetEmail(
+            @Validated @ModelAttribute PasswordFindRequest request,
+            BindingResult bindingResult,
+            HttpSession session,
+            Model model
+    ) {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("errorMessage", bindingResult.getAllErrors().get(0).getDefaultMessage());
+            model.addAttribute("passwordFindRequest", request);
+
+            return "member/find-password";
+        }
+
+        try {
+            memberService.sendPasswordResetCode(request.getLoginId(), request.getEmail());
+
+            session.setAttribute(SessionConst.PASSWORD_RESET_LOGIN_ID, request.getLoginId());
+            session.setAttribute(SessionConst.PASSWORD_RESET_EMAIL, request.getEmail());
+
+            long ttlSecond = passwordResetCodeService.getCodeTtlSecond(request.getLoginId(), request.getEmail());
+
+            model.addAttribute("ttlSeconds", ttlSecond);
+            model.addAttribute("passwordVerifyRequest", new PasswordVerifyRequest());
+
+            return "member/find-password-verify";
+
+        } catch (CustomException e) {
+            model.addAttribute("errorMessage", e.getMessage());
+            model.addAttribute("passwordFindRequest", request);
+
+            return "member/find-password";
+        }
+
+    }
+
+    /**
+     * 인증번호 확인
+     */
+    @PostMapping("find-password/verify")
+    public String verifyPasswordResetCode(
+            @Validated @ModelAttribute PasswordVerifyRequest request,
+            BindingResult bindingResult,
+            HttpSession session,
+            Model model
+    ) {
+
+        String loginId = (String) session.getAttribute(SessionConst.PASSWORD_RESET_LOGIN_ID);
+        String email = (String) session.getAttribute(SessionConst.PASSWORD_RESET_EMAIL);
+
+        if (loginId == null || email == null) {
+            model.addAttribute("errorMessage", "비밀번호 찾기를 다시 진행해주세요.");
+            model.addAttribute("passwordFindRequest", new PasswordFindRequest());
+
+            return "member/find-password";
+        }
+
+        if (bindingResult.hasErrors()) {
+            long ttlSeconds = passwordResetCodeService.getCodeTtlSecond(loginId, email);
+
+            model.addAttribute("errorMessage", bindingResult.getAllErrors().get(0).getDefaultMessage());
+            model.addAttribute("ttlSeconds", ttlSeconds);
+            model.addAttribute("passwordVerifyRequest", request);
+
+            return "member/find-password-verify";
+        }
+
+        try {
+            memberService.verifyPasswordResetCode(loginId, email, request.getCode());
+
+            model.addAttribute("passwordResetRequest", new PasswordResetRequest());
+
+            return "member/reset-password";
+
+        } catch (CustomException e) {
+            long ttlSeconds = passwordResetCodeService.getCodeTtlSecond(loginId, email);
+
+            model.addAttribute("errorMessage", e.getMessage());
+            model.addAttribute("ttlSeconds", ttlSeconds);
+            model.addAttribute("passwordVerifyRequest", request);
+
+            return "member/find-password-verify";
+        }
+
+    }
+
+    @GetMapping("/find-password/reset")
+    public String resetPasswordForm(
+            HttpSession session,
+            Model model
+    ) {
+        String loginId = (String) session.getAttribute(SessionConst.PASSWORD_RESET_LOGIN_ID);
+        String email = (String) session.getAttribute(SessionConst.PASSWORD_RESET_EMAIL);
+
+        if (loginId == null || email == null || !passwordResetCodeService.isVerified(loginId, email)) {
+            model.addAttribute("errorMessage", "비밀번호 재설정 인증이 필요합니다.");
+            model.addAttribute("passwordFindRequest", new PasswordFindRequest());
+
+            return "member/find-password";
+        }
+
+        model.addAttribute("passwordResetRequest", new PasswordResetRequest());
+
+        return "member/reset-password";
+    }
+
+    /**
+     * 비밀번호 변경
+     */
+    @PostMapping("/find-password/reset")
+    public String resetPassword(
+            @Validated @ModelAttribute PasswordResetRequest request,
+            BindingResult bindingResult,
+            HttpSession session,
+            RedirectAttributes redirectAttributes,
+            Model model
+    ) {
+        String loginId = (String) session.getAttribute(SessionConst.PASSWORD_RESET_LOGIN_ID);
+        String email = (String) session.getAttribute(SessionConst.PASSWORD_RESET_EMAIL);
+
+        if (loginId == null || email == null) {
+            model.addAttribute("errorMessage", "비밀번호 찾기를 다시 진행해주세요.");
+            model.addAttribute("passwordFindRequest", new PasswordFindRequest());
+
+            return "member/find-password";
+        }
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("errorMessage", bindingResult.getAllErrors().get(0).getDefaultMessage());
+            model.addAttribute("passwordResetRequest", request);
+
+            return "member/reset-password";
+        }
+
+        try {
+
+            memberService.resetPassword(loginId, email, request.getNewPassword(), request.getConfirmPassword());
+
+            session.removeAttribute(SessionConst.PASSWORD_RESET_LOGIN_ID);
+            session.removeAttribute(SessionConst.PASSWORD_RESET_EMAIL);
+
+            redirectAttributes.addFlashAttribute("successMessage", "비밀번호가 변경되었습니다. 다시 로그인해주세요.");
+
+            return "redirect:/member/login";
+        } catch (CustomException e) {
+            model.addAttribute("errorMessage", e.getMessage());
+            model.addAttribute("passwordResetRequest", request);
+
+            return "member/reset-password";
+        }
 
     }
 

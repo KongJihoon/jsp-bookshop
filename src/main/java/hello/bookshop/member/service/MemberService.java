@@ -3,6 +3,8 @@ package hello.bookshop.member.service;
 import hello.bookshop.cart.mapper.CartMapper;
 import hello.bookshop.common.exception.member.*;
 import hello.bookshop.member.domain.Member;
+import hello.bookshop.member.dto.request.MemberFindIdRequest;
+import hello.bookshop.member.dto.response.MemberFindIdResponse;
 import hello.bookshop.member.dto.response.MemberInfoResponse;
 import hello.bookshop.member.dto.request.MemberUpdateRequest;
 import hello.bookshop.member.dto.response.MyPageHomeResponse;
@@ -27,6 +29,8 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final OrderMapper orderMapper;
     private final CartMapper cartMapper;
+    private final PasswordResetCodeService passwordResetCodeService;
+    private final MailService mailService;
 
     /**
      * 유저 회원가입
@@ -177,6 +181,72 @@ public class MemberService {
         return memberMapper.existsByEmail(email);
     }
 
+    /**
+     * 아이디 찾기
+     */
+    @Transactional
+    public MemberFindIdResponse findLoginId(MemberFindIdRequest request) {
+
+        return memberMapper.findLoginIdByNameEmailPhone(
+                request.getName(),
+                request.getEmail(),
+                request.getPhone()
+        ).orElseThrow(() -> new MemberFindException("일치하는 회원 정보를 찾을 수 없습니다."));
+    }
+
+    @Transactional(readOnly = true)
+    public void sendPasswordResetCode(String loginId, String email) {
+
+        memberMapper.findByLoginIdAndEmailAndWithdrawnAtIsNull(loginId, email)
+                .orElseThrow(() -> new MemberFindException("일치하는 회원 정보를 찾을 수 없습니다."));
+
+        String code = passwordResetCodeService.createCode();
+
+        passwordResetCodeService.saveCode(loginId, email, code);
+
+        mailService.sendPasswordResetCode(email, code);
+
+    }
+
+    @Transactional(readOnly = true)
+    public void verifyPasswordResetCode(String loginId, String email, String code) {
+
+        boolean matched = passwordResetCodeService.verifyCode(loginId, email, code);
+
+        if (!matched) {
+            throw new MemberFindException("인증번호가 올바르지 않거나 만료되었습니다.");
+        }
+
+        passwordResetCodeService.markVerified(loginId, email);
+        passwordResetCodeService.deleteCode(loginId, email);
+
+    }
+
+    @Transactional
+    public void resetPassword(String loginId, String email, String newPassword, String confirmPassword) {
+
+        if (!newPassword.equals(confirmPassword)) {
+            throw new MemberFindException("새 비밀번호가 일치하지 않습니다.");
+        }
+
+        if (!passwordResetCodeService.isVerified(loginId, email)) {
+            throw new MemberFindException("이메일 인증이 완료되지 않았습니다.");
+        }
+
+        Member member = memberMapper.findByLoginIdAndEmailAndWithdrawnAtIsNull(loginId, email)
+                .orElseThrow(MemberNotFoundException::new);
+
+        String encodedPassword = passwordEncoder.encode(newPassword);
+
+        int updatedCount = memberMapper.updatePassword(member.getMemberId(), encodedPassword);
+
+        if (updatedCount == 0) {
+            throw new MemberFindException("비밀번호 변경에 실패하였습니다.");
+        }
+
+        passwordResetCodeService.deleteAll(loginId, email);
+
+    }
 
 
 
