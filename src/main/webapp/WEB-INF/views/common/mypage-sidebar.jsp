@@ -10,7 +10,7 @@
     <div class="menu-group">
         <h4>쇼핑정보</h4>
         <ul>
-            <li><a href="#">주문배송 조회</a></li>
+            <li><a href="${contextPath}/orders/delivery">주문배송 조회</a></li>
             <li><a href="${contextPath}/orders">주문내역</a></li>
         </ul>
     </div>

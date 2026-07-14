@@ -138,6 +138,18 @@ public class OrderService {
         return orderDetail;
     }
 
+    /**
+     * 배송 목록 조회
+     */
+    @Transactional(readOnly = true)
+    public List<DeliveryListResponse> findMyDeliveries(Long memberId) {
+
+        validateLoginMember(memberId);
+
+        return orderMapper.findDeliveryOrdersByMemberId(memberId);
+
+    }
+
     private static void validateStock(List<OrderFormItemResponse> items) {
         for (OrderFormItemResponse item : items) {
             if (item.getStockQuantity() < item.getQuantity()) {

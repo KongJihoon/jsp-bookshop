@@ -5,10 +5,7 @@ import hello.bookshop.common.session.SessionConst;
 import hello.bookshop.member.dto.response.SessionMemberDto;
 import hello.bookshop.order.dto.request.CartOrderFormRequest;
 import hello.bookshop.order.dto.request.OrderCreateRequest;
-import hello.bookshop.order.dto.response.OrderCompleteResponse;
-import hello.bookshop.order.dto.response.OrderDetailResponse;
-import hello.bookshop.order.dto.response.OrderFormResponse;
-import hello.bookshop.order.dto.response.OrderListResponse;
+import hello.bookshop.order.dto.response.*;
 import hello.bookshop.order.service.OrderService;
 import hello.bookshop.payment.config.TossProperties;
 import hello.bookshop.payment.dto.response.PaymentCheckoutResponse;
@@ -142,6 +139,20 @@ public class OrderController {
             return "redirect:/orders";
         }
 
+    }
+
+    @GetMapping("/delivery")
+    public String deliveryList(
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER) SessionMemberDto loginMember,
+            Model model
+    ) {
+
+        List<DeliveryListResponse> deliveries = orderService.findMyDeliveries(loginMember.getMemberId());
+
+        model.addAttribute("deliveries", deliveries);
+
+
+        return "order/delivery-list";
     }
 
 }
