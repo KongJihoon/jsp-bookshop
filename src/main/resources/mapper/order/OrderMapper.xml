@@ -304,6 +304,15 @@
         FROM orders
     </select>
 
+    <select id="countTodayOrders"
+            resultType="long">
+        SELECT COUNT(*)
+        FROM orders
+        WHERE ordered_at >= CURDATE()
+        AND ordered_at &lt; DATE_ADD(CURDATE(), INTERVAL 1 DAY)
+        AND order_status != 'FAILED'
+    </select>
+
     <select id="findAdminOrderDetailsByOrderId"
             resultType="hello.bookshop.order.dto.response.AdminOrderDetailResponse">
 

@@ -67,7 +67,7 @@
                     <div class="card border-0 shadow-sm rounded-4">
                         <div class="card-body">
                             <p class="text-muted mb-1">오늘 주문</p>
-                            <h3 class="fw-bold mb-0">0</h3>
+                            <h3 class="fw-bold mb-0">${dashboard.todayOrderCount}</h3>
                         </div>
                     </div>
                 </div>
@@ -125,28 +125,6 @@
             </div>
 
         </main>
-
-        <div class="card shadow-sm mt-4">
-
-            <div class="card-header fw-bold">
-                병기련
-            </div>
-
-            <div class="card-body text-center">
-
-                <img
-                        src="${contextPath}/images/friends.jpeg"
-                        alt="friend"
-                        class="img-fluid rounded shadow-sm"
-                        style="max-height:400px;">
-
-                <p class="mt-3 text-muted">
-                    병신 헬창련
-                </p>
-
-            </div>
-
-        </div>
     </div>
 
 </div>

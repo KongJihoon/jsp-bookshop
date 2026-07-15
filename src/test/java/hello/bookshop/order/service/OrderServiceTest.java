@@ -11,7 +11,9 @@ import hello.bookshop.order.dto.request.OrderCreateRequest;
 import hello.bookshop.order.dto.response.*;
 import hello.bookshop.order.mapper.OrderMapper;
 import hello.bookshop.order.type.OrderStatus;
+import hello.bookshop.payment.domain.Payment;
 import hello.bookshop.payment.dto.response.PaymentCheckoutResponse;
+import hello.bookshop.payment.mapper.PaymentMapper;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,6 +41,9 @@ class OrderServiceTest {
 
     @Mock
     private OrderMapper orderMapper;
+
+    @Mock
+    private PaymentMapper paymentMapper;
 
     @InjectMocks
     private OrderService orderService;
@@ -124,11 +129,6 @@ class OrderServiceTest {
             return null;
         }).when(orderMapper).saveOrder(any(Order.class));
 
-        when(orderMapper.decreaseProductStock(anyLong(), anyInt()))
-                .thenReturn(1);
-        when(orderMapper.deleteOrderCartItems(memberId, cartItemIds))
-                .thenReturn(2);
-
         // when
         PaymentCheckoutResponse result = orderService.createReadyCartOrder(memberId, request);
 
@@ -163,14 +163,22 @@ class OrderServiceTest {
         assertThat(savedOrderItems.get(0).getQuantity()).isEqualTo(2);
         assertThat(savedOrderItems.get(0).getItemTotalPrice()).isEqualTo(60000);
 
-        verify(orderMapper).decreaseProductStock(100L,2);
-        verify(orderMapper).decreaseProductStock(200L, 1);
-        verify(orderMapper).deleteOrderCartItems(memberId, cartItemIds);
+        ArgumentCaptor<Payment> paymentCaptor = ArgumentCaptor.forClass(Payment.class);
+
+        verify(paymentMapper).save(paymentCaptor.capture());
+
+        Payment savedPayment = paymentCaptor.getValue();
+
+        assertThat(savedPayment.getOrderId()).isEqualTo(1000L);
+        assertThat(savedPayment.getTossOrderId()).startsWith("BOOKSHOP-1000-");
+        assertThat(savedPayment.getAmount()).isEqualTo(80000);
+        assertThat(result.getTossOrderId()).isEqualTo(savedPayment.getTossOrderId());
+        assertThat(result.getAmount()).isEqualTo(80000);
 
     }
 
     @Test
-    @DisplayName("재고 차감 실패 시 주문 상품 저장 불가")
+    @DisplayName("재고 부족 시 주문 생성 불가")
     void createCartOrder_fail_stockDecreaseFail() {
         // given
         Long memberId = 1L;
@@ -181,20 +189,11 @@ class OrderServiceTest {
         OrderCreateRequest request = createOrderCreateRequest(cartItemIds);
 
         List<OrderFormItemResponse> items = List.of(
-                createOrderFormItem(10L, 100L, "자바의 정석", 30000, 1, 10)
+                createOrderFormItem(10L, 100L, "자바의 정석", 30000, 2, 1)
         );
 
         when(orderMapper.findOrderFormItemsByCartItemIds(memberId, cartItemIds))
                 .thenReturn(items);
-
-        doAnswer(invocation -> {
-            Order order = invocation.getArgument(0);
-            ReflectionTestUtils.setField(order, "orderId", 100L);
-            return null;
-        }).when(orderMapper).saveOrder(any(Order.class));
-
-        when(orderMapper.decreaseProductStock(100L, 1))
-                .thenReturn(0);
 
         // when
 
@@ -204,10 +203,9 @@ class OrderServiceTest {
                 .isInstanceOf(StockQuantityExceedException.class)
                 .hasMessage("재고 수량을 초과한 상품이 있습니다.");
 
-        verify(orderMapper).saveOrder(any(Order.class));
-        verify(orderMapper).decreaseProductStock(100L, 1);
+        verify(orderMapper, never()).saveOrder(any(Order.class));
         verify(orderMapper, never()).saveOrderItem(any(OrderItem.class));
-        verify(orderMapper, never()).deleteOrderCartItems(anyLong(), anyList());
+        verify(paymentMapper, never()).save(any(Payment.class));
 
     }
 

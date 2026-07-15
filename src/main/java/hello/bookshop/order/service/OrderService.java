@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -86,7 +87,7 @@ public class OrderService {
             orderMapper.saveOrderItem(orderItem);
         }
 
-        String tossOrderId = "BOOKSHOP-" + order.getOrderId();
+        String tossOrderId = createTossOrderId(order.getOrderId());
 
         Payment payment = Payment.ready(
                 order.getOrderId(),
@@ -106,6 +107,11 @@ public class OrderService {
                 "member-" + memberId
         );
 
+    }
+
+    private String createTossOrderId(Long orderId) {
+        String uniqueSuffix = UUID.randomUUID().toString().replace("-", "").substring(0, 12);
+        return "BOOKSHOP-" + orderId + "-" + uniqueSuffix;
     }
 
 
