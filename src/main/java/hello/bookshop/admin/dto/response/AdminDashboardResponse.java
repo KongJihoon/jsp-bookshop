@@ -13,6 +13,8 @@ public class AdminDashboardResponse {
 
     private long totalMemberCount;
 
+    private long todayOrderCount;
+
     private long soldOutProductCount;
 
 }

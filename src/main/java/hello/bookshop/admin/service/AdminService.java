@@ -7,6 +7,7 @@ import hello.bookshop.member.domain.Member;
 import hello.bookshop.member.dto.response.SessionMemberDto;
 import hello.bookshop.member.mapper.MemberMapper;
 import hello.bookshop.member.type.MemberType;
+import hello.bookshop.order.mapper.OrderMapper;
 import hello.bookshop.product.mapper.ProductMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,6 +22,7 @@ public class AdminService {
 
     private final PasswordEncoder passwordEncoder;
     private final ProductMapper productMapper;
+    private final OrderMapper orderMapper;
 
     public SessionMemberDto loginAdmin(AdminLoginRequest request) {
 
@@ -46,9 +48,11 @@ public class AdminService {
 
         long totalMemberCount = memberMapper.countAllUsers();
 
+        long todayOrderCount = orderMapper.countTodayOrders();
+
         long soldOutProductCount = productMapper.countSoldOutProducts();
 
-        return new AdminDashboardResponse(totalProductCount, totalMemberCount, soldOutProductCount);
+        return new AdminDashboardResponse(totalProductCount, totalMemberCount, todayOrderCount, soldOutProductCount);
 
     }
 

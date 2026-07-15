@@ -62,6 +62,8 @@ public interface OrderMapper {
 
     int countAdminOrders();
 
+    long countTodayOrders();
+
     AdminOrderDetailResponse findAdminOrderDetailsByOrderId(Long orderId);
 
     OrderStatus findOrderStatusByOrderId(Long orderId);

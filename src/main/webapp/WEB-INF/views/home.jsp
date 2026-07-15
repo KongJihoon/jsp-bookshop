@@ -20,14 +20,14 @@
 
 
 <main class="main-content py-5 bg-light">
-    <!-- 메인 배너 -->
-    <section class="bg-white py-4 border-bottom">
-        <div class="container">
-            <a href="#latestBooks" class="d-block text-decoration-none">
-                <img src="${contextPath}/images/main-banner.jpg"
-                     alt="BookShop 신규 도서 배너"
-                     class="img-fluid rounded-4 shadow-sm w-100"
-                     style="max-height: 180px; object-fit: cover;">
+    <section class="py-5 bg-light border-bottom">
+        <div class="container text-center">
+            <h1 class="fw-bold mb-3">BookShop</h1>
+            <p class="text-muted mb-4">
+                개발자와 독자를 위한 온라인 도서 쇼핑몰
+            </p>
+            <a href="${contextPath}/products" class="btn btn-primary px-4">
+                도서 둘러보기
             </a>
         </div>
     </section>
